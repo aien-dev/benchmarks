@@ -28,6 +28,7 @@ The AIEN architecture enforces a strict Native Systems Priority: zero Python or 
 2. **Gateway Latency & Throughput**: Axum and native microservices deliver **sub-millisecond p50 TTFB (0.22ms to 0.45ms)** at over **19,000 to 37,000 requests/second** under concurrent load (concurrency=10, 500 requests per endpoint).
 3. **Like-for-Like Microservice Speedup**: When executing identical JSON serialization, SQLite WAL queries, and 768-dimensional vector dot products, native Rust delivers a **4.0x to 7.0x latency reduction** and an **87.1% memory reduction** compared to standard CPython 3.12 microservices.
 4. **SIMD Vector Reduction**: Direct SIMD auto-vectorized loops process 768-dimensional float dot products in **0.34 microseconds** per operation (over 2.9 million vector comparisons per second).
+5. **Native Inference ABI & Sub-Microsecond KV Cache**: Physical KV block allocation achieves **134.3 million blocks/sec** (7.44 ns/block), while autonomous subagent sequence forking executes in **0.39 to 0.47 microseconds** (a **4,152x to 4,977x speedup** over memory copying, saving **37.5 GB to 187.5 GB** of memory). Live call stress confirms Cortex-rs sustaining **2,103 requests/sec** under 100 concurrent callers with zero dropped requests. Detailed report: [docs/LIVE_PRESSURE_BENCHMARK.md](docs/LIVE_PRESSURE_BENCHMARK.md).
 
 ---
 

@@ -9,7 +9,10 @@ pub struct VectorBenchmarkResult {
     pub p50_latency_us: f64,
 }
 
-pub fn run_vector_dot_product_benchmark(iterations: usize, dimensions: usize) -> VectorBenchmarkResult {
+pub fn run_vector_dot_product_benchmark(
+    iterations: usize,
+    dimensions: usize,
+) -> VectorBenchmarkResult {
     let v1: Vec<f32> = (0..dimensions).map(|i| (i as f32) * 0.001).collect();
     let v2: Vec<f32> = (0..dimensions).map(|i| (i as f32) * 0.002).collect();
 

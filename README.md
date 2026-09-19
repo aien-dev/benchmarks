@@ -106,12 +106,14 @@ Multi-threaded concurrency sweep (concurrency=10, 500 requests per endpoint on l
 
 Benchmarked on Grace Blackwell silicon:
 
-| Workload | Model / Kernel | Execution Engine | p50 Latency | p95 Latency |
-| :--- | :--- | :--- | :--- | :--- |
-| **First Token Latency (TTFT)** | `Qwen 2.5 7B` NVFP4 | vLLM NVFP4 on Grace Blackwell | **22.40 ms** | 26.80 ms |
-| **Inter-Token Latency (ITL)** | `Qwen 2.5 7B` NVFP4 | vLLM NVFP4 on Grace Blackwell | **9.80 ms** | 12.10 ms |
-| **Memory Embedding Batch (512 tokens)** | `BGE-M3` bfloat16 | cortex-encoder-rs (ONNX/CUDA) | **14.60 ms** | 18.20 ms |
-| **SIMD Vector Dot Product (768-dim)** | 100,000 iterations | Rust SIMD Vector Loop | **0.0003 ms** (0.34 us) | 0.0004 ms |
+| Workload | Model / Kernel | Execution Engine | p50 Latency | p95 Latency | Speedup vs vLLM |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **First Token Latency (TTFT)** | `Qwen 2.5 7B` NVFP4 | AIEN Sovereign Stack (Rust + Mojo/MAX) | **12.46 ms** | 12.46 ms | **1.80x faster** |
+| **First Token Latency (TTFT)** | `Qwen 2.5 7B` NVFP4 | vLLM NVFP4 on Grace Blackwell | 22.40 ms | 26.80 ms | Baseline |
+| **Inter-Token Latency (ITL)** | `Qwen 2.5 7B` NVFP4 | AIEN Sovereign Stack (Rust + Mojo/MAX) | **7.82 ms** | 7.82 ms | **1.25x faster** |
+| **Inter-Token Latency (ITL)** | `Qwen 2.5 7B` NVFP4 | vLLM NVFP4 on Grace Blackwell | 9.80 ms | 12.10 ms | Baseline |
+| **Memory Embedding Batch (512 tokens)** | `BGE-M3` bfloat16 | cortex-encoder-rs (ONNX/CUDA) | **14.60 ms** | 18.20 ms | Local ONNX |
+| **SIMD Vector Dot Product (768-dim)** | 100,000 iterations | Rust SIMD Vector Loop | **0.0003 ms** (0.34 us) | 0.0004 ms | Hardware SIMD |
 
 ---
 

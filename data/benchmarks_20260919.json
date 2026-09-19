@@ -1,6 +1,9 @@
 {
   "benchmark_suite": "AIEN Sovereign Systems Performance Benchmark Suite",
   "version": "0.2.0",
+  "schema_version": "1.0.0",
+  "benchmark_commit": "latest",
+  "core_commit": "34e4b41",
   "timestamp": "2026-09-19T12:19:36Z",
   "hardware": {
     "system": "NVIDIA DGX Spark",
@@ -20,6 +23,7 @@
   },
   "memory_rss": [
     {
+      "measurement_id": "BENCH-FASTAPI-RSS-001",
       "service": "python-fastapi-baseline",
       "role": "Python Microservice Baseline",
       "architecture": "Python 3.12 + FastAPI + Uvicorn",
@@ -28,6 +32,7 @@
       "reduction_pct": 0.0
     },
     {
+      "measurement_id": "BENCH-OPENCLAW-RSS-001",
       "service": "openclaw-rs",
       "role": "Sovereign Gateway & Heartbeat",
       "architecture": "Native Rust (Grace Blackwell)",
@@ -36,6 +41,7 @@
       "reduction_pct": 89.80624890905918
     },
     {
+      "measurement_id": "BENCH-CORTEX-RSS-001",
       "service": "cortex-rs",
       "role": "Canonical Memory Engine",
       "architecture": "Native Rust + SQLite WAL",
@@ -44,6 +50,7 @@
       "reduction_pct": 58.29987781462733
     },
     {
+      "measurement_id": "BENCH-COCKPIT-RSS-001",
       "service": "spark-cockpit-rs",
       "role": "Real-time Telemetry Cockpit",
       "architecture": "Native Rust + Axum",
@@ -52,6 +59,7 @@
       "reduction_pct": 71.18170710420667
     },
     {
+      "measurement_id": "BENCH-ENCODER-RSS-001",
       "service": "cortex-encoder-rs",
       "role": "Neural Embedding Microservice",
       "architecture": "Rust + ONNX Runtime (BGE-M3)",
@@ -62,6 +70,7 @@
   ],
   "latency_concurrency": [
     {
+      "measurement_id": "BENCH-FASTAPI-LATENCY-001",
       "service": "python-fastapi-baseline",
       "endpoint": "/api/status",
       "description": "Python FastAPI Baseline Ping",
@@ -74,6 +83,7 @@
       "sample_size": 500
     },
     {
+      "measurement_id": "BENCH-CORTEX-LATENCY-001",
       "service": "cortex-rs",
       "endpoint": "/api/cortex/get",
       "description": "Cortex Canonical Retrieval",
@@ -86,6 +96,7 @@
       "sample_size": 500
     },
     {
+      "measurement_id": "BENCH-COCKPIT-LATENCY-001",
       "service": "spark-cockpit-rs",
       "endpoint": "/api/pulse",
       "description": "Real-time System Pulse",
@@ -98,6 +109,7 @@
       "sample_size": 500
     },
     {
+      "measurement_id": "BENCH-ENCODER-LATENCY-001",
       "service": "cortex-encoder-rs",
       "endpoint": "/health",
       "description": "ONNX Runtime Service Health",
@@ -112,6 +124,7 @@
   ],
   "like_for_like": [
     {
+      "measurement_id": "BENCH-LFL-STATUS-001",
       "category": "HTTP Microservice",
       "workload": "Minimal JSON Status Ping (/api/status)",
       "rust_engine": "Rust Standalone (Native Compiled)",
@@ -126,6 +139,7 @@
       "memory_reduction_pct": 94.24855995810788
     },
     {
+      "measurement_id": "BENCH-LFL-QUERY-001",
       "category": "Database & Serialization",
       "workload": "Single Entity Query & JSON Serialization (/api/query)",
       "rust_engine": "Rust Standalone (Native Compiled)",
@@ -140,6 +154,7 @@
       "memory_reduction_pct": 94.24855995810788
     },
     {
+      "measurement_id": "BENCH-LFL-VECTOR-001",
       "category": "Vector & SIMD Compute",
       "workload": "768-dimensional Vector Dot Product (/api/vector)",
       "rust_engine": "Rust SIMD Vector Loop",
@@ -156,6 +171,7 @@
   ],
   "neural_inference": [
     {
+      "measurement_id": "BENCH-NEURAL-TTFT-GPU-001",
       "workload": "First Token Latency (TTFT) - GPU Seat",
       "model": "Nemotron 3.5 Lightning 30B (BF16)",
       "engine": "Modular MAX (Grace Blackwell GB10 GPU)",
@@ -163,6 +179,7 @@
       "p95_ms": 426.91011000000003
     },
     {
+      "measurement_id": "BENCH-NEURAL-ITL-GPU-001",
       "workload": "Inter-Token Latency (ITL) - GPU Seat",
       "model": "Nemotron 3.5 Lightning 30B (BF16)",
       "engine": "Modular MAX (Grace Blackwell GB10 GPU)",
@@ -170,6 +187,7 @@
       "p95_ms": 47.881523
     },
     {
+      "measurement_id": "BENCH-NEURAL-TTFT-CPU-001",
       "workload": "First Token Latency (TTFT) - CPU Fallback",
       "model": "Llama 3.2 1B Instruct (Q4_K)",
       "engine": "Modular MAX (Grace Neoverse CPU)",
@@ -177,6 +195,7 @@
       "p95_ms": 155.398386
     },
     {
+      "measurement_id": "BENCH-NEURAL-ITL-CPU-001",
       "workload": "Inter-Token Latency (ITL) - CPU Fallback",
       "model": "Llama 3.2 1B Instruct (Q4_K)",
       "engine": "Modular MAX (Grace Neoverse CPU)",
@@ -184,6 +203,7 @@
       "p95_ms": 99.418419
     },
     {
+      "measurement_id": "BENCH-NEURAL-EMBED-001",
       "workload": "Bi-Encoder Vector Embedding",
       "model": "BAAI/bge-base-en-v1.5 (INT8)",
       "engine": "cortex-encoder-rs (ONNX Runtime)",
@@ -191,6 +211,7 @@
       "p95_ms": 8.832346
     },
     {
+      "measurement_id": "BENCH-NEURAL-DOTPROD-001",
       "workload": "SIMD Vector Dot Product (768-dim)",
       "model": "In-Memory Cortex Embedding",
       "engine": "Rust SIMD Vector Loop",

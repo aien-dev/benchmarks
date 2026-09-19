@@ -182,6 +182,7 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
             );
             metrics.push(NeuralMetric {
+                measurement_id: Some("BENCH-LIVE-TTFT-GPU-001".to_string()),
                 workload: "First Token Latency (TTFT) - GPU Seat".to_string(),
                 model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
                 engine: "Modular MAX (Grace Blackwell GB10 GPU)".to_string(),
@@ -189,6 +190,7 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 p95_ms: res.ttft_ms,
             });
             metrics.push(NeuralMetric {
+                measurement_id: Some("BENCH-LIVE-ITL-GPU-001".to_string()),
                 workload: "Inter-Token Latency (ITL) - GPU Seat".to_string(),
                 model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
                 engine: "Modular MAX (Grace Blackwell GB10 GPU)".to_string(),
@@ -223,6 +225,7 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
             );
             metrics.push(NeuralMetric {
+                measurement_id: Some("BENCH-LIVE-TTFT-CPU-001".to_string()),
                 workload: "First Token Latency (TTFT) - CPU Fallback".to_string(),
                 model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
                 engine: "Modular MAX (Grace Neoverse CPU)".to_string(),
@@ -230,6 +233,7 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 p95_ms: res.ttft_ms,
             });
             metrics.push(NeuralMetric {
+                measurement_id: Some("BENCH-LIVE-ITL-CPU-001".to_string()),
                 workload: "Inter-Token Latency (ITL) - CPU Fallback".to_string(),
                 model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
                 engine: "Modular MAX (Grace Neoverse CPU)".to_string(),
@@ -256,6 +260,7 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 p50, p95
             );
             metrics.push(NeuralMetric {
+                measurement_id: Some("BENCH-LIVE-EMBED-001".to_string()),
                 workload: "Bi-Encoder Vector Embedding".to_string(),
                 model: "BAAI/bge-base-en-v1.5 (INT8)".to_string(),
                 engine: "cortex-encoder-rs (ONNX Runtime)".to_string(),

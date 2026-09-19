@@ -1,9 +1,9 @@
-name: CI
+name: CI (Manual GitHub Dispatch)
+# Canonical CI runs natively on NVIDIA DGX Spark via Forgejo Actions (.forgejo/workflows/ci.yml).
+# GitHub Actions is set to workflow_dispatch only to prevent billable runner minutes.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+
 jobs:
   verify:
     runs-on: ubuntu-latest

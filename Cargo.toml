@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["Drake Stapleton <drake.aien@proton.me>"]
 description = "Sovereign Systems Benchmark Suite: reproducible performance comparisons on NVIDIA DGX Spark Grace Blackwell"
-license = "SRCL-1.0"
+license = "Apache-2.0"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }

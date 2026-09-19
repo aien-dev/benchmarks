@@ -1,0 +1,27 @@
+name: Benchmark Suite CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: Benchmark Invariant & Provenance Audit
+    runs-on: spark
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Verify Code Formatting
+        run: cargo fmt --all -- --check
+
+      - name: Cargo Check
+        run: cargo check --all-targets
+
+      - name: Run Test Suite
+        run: cargo test --verbose
+
+      - name: Verify Invariants
+        run: cargo run --release -- verify

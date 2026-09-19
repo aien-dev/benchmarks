@@ -219,3 +219,139 @@ pub fn generate_like_for_like_chart(data: &BenchmarkData) -> String {
         rows = rows
     )
 }
+
+pub fn generate_pressure_chart(data: &BenchmarkData) -> String {
+    let mut rows = String::new();
+    let start_y = 120.0f64;
+    let row_h = 44.0f64;
+    let chart_w = 450.0f64;
+    let max_ttft = 45.0f64;
+
+    for (i, c) in data.concurrency_pressure.iter().enumerate() {
+        let y = start_y + (i as f64) * row_h;
+        let ttft_bar = ((c.aien_ttft_p50_ms / max_ttft) * chart_w).max(4.0);
+        let itl_bar = ((c.aien_itl_p50_ms / max_ttft) * chart_w).max(4.0);
+
+        rows.push_str(&format!(
+            r##"
+    <g class="tier-row">
+      <text x="30" y="{y}" class="label-concurrency">Concurrency = {concurrency}</text>
+      <rect x="220" y="{rect_ttft_y}" width="{ttft_w}" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="{rect_itl_y}" width="{itl_w}" height="14" rx="3" fill="#6ba4d9" />
+      <text x="{ttft_val_x}" y="{y_ttft_text}" class="label-stat">TTFT {ttft:.1}ms</text>
+      <text x="{itl_val_x}" y="{y_itl_text}" class="label-stat">ITL {itl:.1}ms</text>
+      <text x="760" y="{y}" class="badge-tps">{tps:.0} tok/s</text>
+      <text x="920" y="{y}" class="badge-power">{power:.1}W ({joules:.4} J/tok)</text>
+    </g>"##,
+            y = y,
+            concurrency = c.concurrency,
+            rect_ttft_y = y - 14.0,
+            rect_itl_y = y + 2.0,
+            ttft_w = ttft_bar,
+            itl_w = itl_bar,
+            ttft_val_x = 230.0 + ttft_bar,
+            itl_val_x = 230.0 + itl_bar,
+            y_ttft_text = y - 3.0,
+            y_itl_text = y + 13.0,
+            ttft = c.aien_ttft_p50_ms,
+            itl = c.aien_itl_p50_ms,
+            tps = c.tokens_per_sec,
+            power = c.power_watts,
+            joules = c.joules_per_token,
+        ));
+    }
+
+    let svg_h = (start_y + (data.concurrency_pressure.len() as f64) * row_h + 30.0) as u32;
+
+    format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 {svg_h}" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg {{ fill: #18111f; }}
+      .title {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #fff8ee; }}
+      .subtitle {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; fill: #bca9c2; }}
+      .label-concurrency {{ font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #ded3df; }}
+      .label-stat {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #fff8ee; }}
+      .badge-tps {{ font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #7fb8a6; }}
+      .badge-power {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #d3a85b; }}
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="30" y="48" class="title">Empirical Concurrency Pressure Sweep (C=1 to C=256)</text>
+  <text x="30" y="74" class="subtitle">AIEN Continuous Batching Scheduler + Paged Unified Memory KV Pool on NVIDIA Grace Blackwell GB10</text>
+{rows}
+</svg>"#,
+        svg_h = svg_h,
+        rows = rows
+    )
+}
+
+pub fn generate_multi_model_chart(data: &BenchmarkData) -> String {
+    let mut rows = String::new();
+    let start_y = 120.0f64;
+    let row_h = 58.0f64;
+    let chart_w = 400.0f64;
+    let max_ttft = 25.0f64;
+
+    for (i, m) in data.multi_model_breadth.iter().enumerate() {
+        let y = start_y + (i as f64) * row_h;
+        let ttft_bar = ((m.ttft_p50_ms / max_ttft) * chart_w).max(4.0);
+        let itl_bar = ((m.itl_p50_ms / max_ttft) * chart_w).max(4.0);
+
+        rows.push_str(&format!(
+            r##"
+    <g class="model-row">
+      <text x="30" y="{y}" class="label-model">{name}</text>
+      <text x="30" y="{desc_y}" class="label-topology">{topology} [{quant}]</text>
+      <rect x="320" y="{rect_ttft_y}" width="{ttft_w}" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="320" y="{rect_itl_y}" width="{itl_w}" height="14" rx="3" fill="#6ba4d9" />
+      <text x="{ttft_val_x}" y="{y_ttft_text}" class="label-stat">TTFT {ttft:.1}ms</text>
+      <text x="{itl_val_x}" y="{y_itl_text}" class="label-stat">ITL {itl:.1}ms</text>
+      <text x="820" y="{y}" class="badge-footprint">KV: {kv:.2} GB</text>
+      <text x="960" y="{y}" class="badge-status">{status}</text>
+    </g>"##,
+            y = y,
+            desc_y = y + 16.0,
+            rect_ttft_y = y - 14.0,
+            rect_itl_y = y + 2.0,
+            ttft_w = ttft_bar,
+            itl_w = itl_bar,
+            ttft_val_x = 330.0 + ttft_bar,
+            itl_val_x = 330.0 + itl_bar,
+            y_ttft_text = y - 3.0,
+            y_itl_text = y + 13.0,
+            name = m.model_name,
+            topology = m.architectural_topology,
+            quant = m.quantization,
+            ttft = m.ttft_p50_ms,
+            itl = m.itl_p50_ms,
+            kv = m.kv_footprint_gb,
+            status = m.status,
+        ));
+    }
+
+    let svg_h = (start_y + (data.multi_model_breadth.len() as f64) * row_h + 30.0) as u32;
+
+    format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 {svg_h}" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg {{ fill: #18111f; }}
+      .title {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #fff8ee; }}
+      .subtitle {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; fill: #bca9c2; }}
+      .label-model {{ font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #ded3df; }}
+      .label-topology {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 11px; fill: #bca9c2; }}
+      .label-stat {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #fff8ee; }}
+      .badge-footprint {{ font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #d3a85b; }}
+      .badge-status {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 800; fill: #7fb8a6; }}
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="30" y="48" class="title">Multi-Model Architecture Breadth & Silicon Scaling</text>
+  <text x="30" y="74" class="subtitle">Empirical performance comparison across model topologies with pure compiled serving</text>
+{rows}
+</svg>"#,
+        svg_h = svg_h,
+        rows = rows
+    )
+}

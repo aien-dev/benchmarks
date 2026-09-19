@@ -75,14 +75,20 @@ fn handle_client(mut stream: TcpStream) {
     let req = String::from_utf8_lossy(&buf[..n]);
 
     let (status, body) = if req.starts_with("GET /api/status") || req.starts_with("GET /health") {
-        ("200 OK", r#"{"status":"ok","engine":"rust-standalone","version":"0.1"}"#.to_string())
+        (
+            "200 OK",
+            r#"{"status":"ok","engine":"rust-standalone","version":"0.1"}"#.to_string(),
+        )
     } else if req.starts_with("GET /api/query") {
         ("200 OK", r#"{"id":1,"canonical_name":"benchmark_reference_entity","content":"Verified cryptographic token record for baseline testing"}"#.to_string())
     } else if req.starts_with("GET /api/vector") {
         let v1 = [0.035f32; 768];
         let v2 = [0.042f32; 768];
         let dot: f32 = v1.iter().zip(v2.iter()).map(|(a, b)| a * b).sum();
-        ("200 OK", format!(r#"{{"similarity":{:.5},"dimensions":768}}"#, dot))
+        (
+            "200 OK",
+            format!(r#"{{"similarity":{:.5},"dimensions":768}}"#, dot),
+        )
     } else {
         ("404 Not Found", r#"{"error":"not found"}"#.to_string())
     };
@@ -132,7 +138,9 @@ impl PythonBaselineServer {
 
         if !ready {
             let _ = child.kill();
-            return Err("Python baseline microservice failed to bind port within 4 seconds".to_string());
+            return Err(
+                "Python baseline microservice failed to bind port within 4 seconds".to_string(),
+            );
         }
 
         Ok(Self { port, pid, child })

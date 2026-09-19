@@ -60,8 +60,7 @@ enum Commands {
 fn load_data(path: &str) -> BenchmarkData {
     let raw = fs::read_to_string(path)
         .unwrap_or_else(|e| panic!("Failed to read benchmark data file {}: {}", path, e));
-    serde_json::from_str(&raw)
-        .unwrap_or_else(|e| panic!("Failed to parse benchmark JSON: {}", e))
+    serde_json::from_str(&raw).unwrap_or_else(|e| panic!("Failed to parse benchmark JSON: {}", e))
 }
 
 fn save_data(path: &str, data: &BenchmarkData) {
@@ -94,7 +93,10 @@ fn render_all_svgs(data: &BenchmarkData, output_dir: &str) {
         println!("  [OK] Rendered {}", lfl_path.display());
     }
 
-    println!("All SVG benchmark charts successfully updated in {}.", output_dir);
+    println!(
+        "All SVG benchmark charts successfully updated in {}.",
+        output_dir
+    );
 }
 
 fn print_report(data: &BenchmarkData) {
@@ -145,7 +147,10 @@ fn print_report(data: &BenchmarkData) {
         "{:<28} | {:<22} | {:>10} | {:>10} | {:>10}",
         "Endpoint", "Engine", "Req/sec", "p50 (ms)", "p95 (ms)"
     );
-    println!("{:-<28}-|-{:-<22}-|-{:-<10}-|-{:-<10}-|-{:-<10}", "", "", "", "", "");
+    println!(
+        "{:-<28}-|-{:-<22}-|-{:-<10}-|-{:-<10}-|-{:-<10}",
+        "", "", "", "", ""
+    );
     for l in &data.latency_concurrency {
         let label = format!("{} {}", l.service, l.endpoint);
         println!(
@@ -161,7 +166,10 @@ fn print_report(data: &BenchmarkData) {
             "{:<36} | {:>10} | {:>10} | {:>10} | {:>12}",
             "Workload", "Rust (ms)", "Py (ms)", "Speedup", "RAM Saving"
         );
-        println!("{:-<36}-|-{:-<10}-|-{:-<10}-|-{:-<10}-|-{:-<12}", "", "", "", "", "");
+        println!(
+            "{:-<36}-|-{:-<10}-|-{:-<10}-|-{:-<10}-|-{:-<12}",
+            "", "", "", "", ""
+        );
         for l in &data.like_for_like {
             let speedup = format!("{:.1}x", l.speedup_factor);
             let mem = format!("-{:.1}%", l.memory_reduction_pct);
@@ -254,7 +262,10 @@ fn main() {
             for l in &data.latency_concurrency {
                 if l.engine.contains("Rust") {
                     assert!(l.p50_ms < 10.0, "Rust service latency exceeded 10ms p50");
-                    assert!(l.requests_per_sec > 1000.0, "Rust service throughput below 1000 req/s");
+                    assert!(
+                        l.requests_per_sec > 1000.0,
+                        "Rust service throughput below 1000 req/s"
+                    );
                 }
             }
             println!("All invariant checks passed successfully.");

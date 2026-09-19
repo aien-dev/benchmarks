@@ -18,7 +18,10 @@ pub fn read_process_rss_mb(pid: u32) -> Option<f64> {
     }
 
     // 2. Fallback to `ps -o rss= -p <pid>`
-    if let Ok(output) = Command::new("ps").args(["-o", "rss=", "-p", &pid.to_string()]).output() {
+    if let Ok(output) = Command::new("ps")
+        .args(["-o", "rss=", "-p", &pid.to_string()])
+        .output()
+    {
         let text = String::from_utf8_lossy(&output.stdout).trim().to_string();
         if let Ok(kb) = text.parse::<f64>() {
             return Some(kb / 1024.0);

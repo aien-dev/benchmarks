@@ -12,7 +12,10 @@ pub fn detect_hardware() -> HardwareInfo {
     // Try reading Linux /proc/cpuinfo
     if let Ok(cpuinfo) = fs::read_to_string("/proc/cpuinfo") {
         for line in cpuinfo.lines() {
-            if line.starts_with("model name") || line.starts_with("Processor") || line.starts_with("Hardware") {
+            if line.starts_with("model name")
+                || line.starts_with("Processor")
+                || line.starts_with("Hardware")
+            {
                 if let Some(val) = line.split(':').nth(1) {
                     processor = val.trim().to_string();
                     break;

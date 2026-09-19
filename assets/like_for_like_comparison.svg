@@ -52,7 +52,7 @@
       <text x="30" y="320" class="label-service">Vector & SIMD Compute: 768-dimensional Vector Dot Product (/api/vector)</text>
       <!-- Rust Bar -->
       <text x="50" y="344" class="label-lang-rust">Rust Native:</text>
-      <rect x="180" y="330" width="189.19780000000003" height="18" rx="3" fill="#7fb8a6" />
+      <rect x="180" y="330" width="189.1978" height="18" rx="3" fill="#7fb8a6" />
       <text x="389.19780000000003" y="344" class="label-val">0.95 ms (13326 req/s)</text>
 
       <!-- Python Bar -->

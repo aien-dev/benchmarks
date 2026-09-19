@@ -20,12 +20,21 @@ pub struct HttpBenchResult {
     pub max_ms: f64,
 }
 
-fn send_single_request(host: &str, port: u16, path: &str, auth_token: Option<&str>) -> Result<f64, String> {
+fn send_single_request(
+    host: &str,
+    port: u16,
+    path: &str,
+    auth_token: Option<&str>,
+) -> Result<f64, String> {
     let start = Instant::now();
     let addr = format!("{}:{}", host, port);
     let mut stream = TcpStream::connect(&addr).map_err(|e| format!("Connect failed: {}", e))?;
-    stream.set_read_timeout(Some(Duration::from_secs(5))).map_err(|e| e.to_string())?;
-    stream.set_write_timeout(Some(Duration::from_secs(5))).map_err(|e| e.to_string())?;
+    stream
+        .set_read_timeout(Some(Duration::from_secs(5)))
+        .map_err(|e| e.to_string())?;
+    stream
+        .set_write_timeout(Some(Duration::from_secs(5)))
+        .map_err(|e| e.to_string())?;
 
     let mut req = format!(
         "GET {} HTTP/1.1\r\nHost: {}:{}\r\nConnection: close\r\nUser-Agent: aien-benchmarks/0.1\r\n",
@@ -36,10 +45,14 @@ fn send_single_request(host: &str, port: u16, path: &str, auth_token: Option<&st
     }
     req.push_str("\r\n");
 
-    stream.write_all(req.as_bytes()).map_err(|e| format!("Write error: {}", e))?;
+    stream
+        .write_all(req.as_bytes())
+        .map_err(|e| format!("Write error: {}", e))?;
 
     let mut buf = [0u8; 1024];
-    let n = stream.read(&mut buf).map_err(|e| format!("Read error: {}", e))?;
+    let n = stream
+        .read(&mut buf)
+        .map_err(|e| format!("Read error: {}", e))?;
     if n == 0 {
         return Err("Empty response".to_string());
     }

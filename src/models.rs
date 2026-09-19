@@ -6,12 +6,16 @@ pub struct BenchmarkData {
     pub version: String,
     pub timestamp: String,
     pub hardware: HardwareInfo,
+    #[serde(default)]
+    pub environment: EnvironmentInfo,
     pub memory_rss: Vec<MemoryMetric>,
     pub latency_concurrency: Vec<LatencyMetric>,
+    #[serde(default)]
+    pub like_for_like: Vec<LikeForLikeMetric>,
     pub neural_inference: Vec<NeuralMetric>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct HardwareInfo {
     pub system: String,
     pub processor: String,
@@ -20,7 +24,18 @@ pub struct HardwareInfo {
     pub os: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct EnvironmentInfo {
+    pub rustc_version: String,
+    pub python_version: String,
+    pub kernel_version: String,
+    pub page_size_kb: u32,
+    pub concurrency_tested: u32,
+    pub requests_per_endpoint: u32,
+    pub warmup_requests: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MemoryMetric {
     pub service: String,
     pub role: String,
@@ -30,7 +45,7 @@ pub struct MemoryMetric {
     pub reduction_pct: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LatencyMetric {
     pub service: String,
     pub endpoint: String,
@@ -44,7 +59,23 @@ pub struct LatencyMetric {
     pub sample_size: u32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct LikeForLikeMetric {
+    pub category: String,
+    pub workload: String,
+    pub rust_engine: String,
+    pub rust_p50_ms: f64,
+    pub rust_throughput_req_s: f64,
+    pub rust_rss_mb: f64,
+    pub python_engine: String,
+    pub python_p50_ms: f64,
+    pub python_throughput_req_s: f64,
+    pub python_rss_mb: f64,
+    pub speedup_factor: f64,
+    pub memory_reduction_pct: f64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NeuralMetric {
     pub workload: String,
     pub model: String,

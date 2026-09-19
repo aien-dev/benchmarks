@@ -19,21 +19,27 @@
   <line x1="920" y1="95" x2="920" y2="470" class="grid" />
 
     <g class="bar-row">
-      <text x="30" y="120" class="label-service">cortex-rs /api/cortex/get</text>
-      <text x="30" y="136" class="label-role">Cortex Canonical Retrieval [Rust Axum + SQLite WAL]</text>
-      <rect x="360" y="104" width="6" height="28" rx="4" fill="#7fb8a6" />
-      <text x="388" y="123" class="label-val">0.45 ms <tspan class="throughput">(21262.4 req/s)</tspan></text>
+      <text x="30" y="120" class="label-service">python-fastapi-baseline /api/status</text>
+      <text x="30" y="136" class="label-role">Python FastAPI Baseline Ping [CPython 3.12 + Uvicorn]</text>
+      <rect x="360" y="104" width="15.927980444444445" height="28" rx="4" fill="#7fb8a6" />
+      <text x="397.9279804444445" y="123" class="label-val">1.28 ms <tspan class="throughput">(7251.6 req/s)</tspan></text>
     </g>
     <g class="bar-row">
-      <text x="30" y="188" class="label-service">spark-cockpit-rs /api/pulse</text>
-      <text x="30" y="204" class="label-role">Real-time System Pulse [Rust Axum]</text>
-      <rect x="360" y="172" width="21.675957333333336" height="28" rx="4" fill="#7fb8a6" />
-      <text x="403.6759573333333" y="191" class="label-val">1.74 ms <tspan class="throughput">(4421.5 req/s)</tspan></text>
+      <text x="30" y="188" class="label-service">cortex-rs /api/cortex/get</text>
+      <text x="30" y="204" class="label-role">Cortex Canonical Retrieval [Rust Axum + SQLite WAL]</text>
+      <rect x="360" y="172" width="6.228705777777777" height="28" rx="4" fill="#7fb8a6" />
+      <text x="388.2287057777778" y="191" class="label-val">0.50 ms <tspan class="throughput">(19366.6 req/s)</tspan></text>
     </g>
     <g class="bar-row">
-      <text x="30" y="256" class="label-service">cortex-encoder-rs /health</text>
-      <text x="30" y="272" class="label-role">ONNX Runtime Service Health [Rust Axum + ONNX Runtime]</text>
-      <rect x="360" y="240" width="6" height="28" rx="4" fill="#7fb8a6" />
-      <text x="388" y="259" class="label-val">0.24 ms <tspan class="throughput">(37214.6 req/s)</tspan></text>
+      <text x="30" y="256" class="label-service">spark-cockpit-rs /api/pulse</text>
+      <text x="30" y="272" class="label-role">Real-time System Pulse [Rust Axum]</text>
+      <rect x="360" y="240" width="20.237416888888887" height="28" rx="4" fill="#7fb8a6" />
+      <text x="402.2374168888889" y="259" class="label-val">1.63 ms <tspan class="throughput">(5840.2 req/s)</tspan></text>
+    </g>
+    <g class="bar-row">
+      <text x="30" y="324" class="label-service">cortex-encoder-rs /health</text>
+      <text x="30" y="340" class="label-role">ONNX Runtime Service Health [Rust Axum + ONNX Runtime]</text>
+      <rect x="360" y="308" width="6" height="28" rx="4" fill="#7fb8a6" />
+      <text x="388" y="327" class="label-val">0.26 ms <tspan class="throughput">(34684.6 req/s)</tspan></text>
     </g>
 </svg>

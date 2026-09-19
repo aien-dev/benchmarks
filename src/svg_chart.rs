@@ -219,6 +219,7 @@ pub fn generate_like_for_like_chart(data: &BenchmarkData) -> String {
         rows = rows
     )
 }
+#[allow(dead_code)]
 
 pub fn generate_pressure_chart(data: &BenchmarkData) -> String {
     let mut rows = String::new();
@@ -285,6 +286,7 @@ pub fn generate_pressure_chart(data: &BenchmarkData) -> String {
         rows = rows
     )
 }
+#[allow(dead_code)]
 
 pub fn generate_multi_model_chart(data: &BenchmarkData) -> String {
     let mut rows = String::new();

@@ -19,33 +19,33 @@
   <line x1="880" y1="95" x2="880" y2="480" class="grid" />
 
     <g class="bar-row">
-      <text x="30" y="120" class="label-service">python-agent-baseline</text>
-      <text x="30" y="135" class="label-role">Legacy Agent Daemon [Python 3.12 + PyTorch + LangChain]</text>
-      <rect x="280" y="104" width="590.13" height="26" rx="4" fill="#d7755d" />
-      <text x="892.13" y="122" class="label-val">3737.49 MB <tspan class="badge">(Baseline)</tspan></text>
+      <text x="30" y="120" class="label-service">python-fastapi-baseline</text>
+      <text x="30" y="135" class="label-role">Python Microservice Baseline [Python 3.12 + FastAPI + Uvicorn]</text>
+      <rect x="280" y="104" width="7.067023026315789" height="26" rx="4" fill="#d3a85b" />
+      <text x="309.0670230263158" y="122" class="label-val">44.76 MB <tspan class="badge">(Baseline)</tspan></text>
     </g>
     <g class="bar-row">
       <text x="30" y="178" class="label-service">openclaw-rs</text>
       <text x="30" y="193" class="label-role">Sovereign Gateway & Heartbeat [Native Rust (Grace Blackwell)]</text>
       <rect x="280" y="162" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="180" class="label-val">4.79 MB <tspan class="badge">(-99.9%)</tspan></text>
+      <text x="306" y="180" class="label-val">4.56 MB <tspan class="badge">(-89.8%)</tspan></text>
     </g>
     <g class="bar-row">
       <text x="30" y="236" class="label-service">cortex-rs</text>
       <text x="30" y="251" class="label-role">Canonical Memory Engine [Native Rust + SQLite WAL]</text>
       <rect x="280" y="220" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="238" class="label-val">10.67 MB <tspan class="badge">(-99.7%)</tspan></text>
+      <text x="306" y="238" class="label-val">18.66 MB <tspan class="badge">(-58.3%)</tspan></text>
     </g>
     <g class="bar-row">
       <text x="30" y="294" class="label-service">spark-cockpit-rs</text>
       <text x="30" y="309" class="label-role">Real-time Telemetry Cockpit [Native Rust + Axum]</text>
       <rect x="280" y="278" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="296" class="label-val">10.05 MB <tspan class="badge">(-99.7%)</tspan></text>
+      <text x="306" y="296" class="label-val">12.90 MB <tspan class="badge">(-71.2%)</tspan></text>
     </g>
     <g class="bar-row">
       <text x="30" y="352" class="label-service">cortex-encoder-rs</text>
       <text x="30" y="367" class="label-role">Neural Embedding Microservice [Rust + ONNX Runtime (BGE-M3)]</text>
-      <rect x="280" y="336" width="122.66385690789474" height="26" rx="4" fill="#d7755d" />
-      <text x="424.66385690789474" y="354" class="label-val">776.87 MB <tspan class="badge">(-79.2%)</tspan></text>
+      <rect x="280" y="336" width="122.75205592105264" height="26" rx="4" fill="#d7755d" />
+      <text x="424.75205592105266" y="354" class="label-val">777.43 MB <tspan class="badge">(Baseline)</tspan></text>
     </g>
 </svg>

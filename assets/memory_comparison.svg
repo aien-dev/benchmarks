@@ -19,39 +19,33 @@
   <line x1="880" y1="95" x2="880" y2="480" class="grid" />
 
     <g class="bar-row">
-      <text x="30" y="120" class="label-service">openclaw-rs</text>
-      <text x="30" y="135" class="label-role">Autonomous Agent Runtime & Heartbeat [Native Rust (Axum + SQLite)]</text>
-      <rect x="280" y="104" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="122" class="label-val">4.78 MB <tspan class="badge">(-99.9%)</tspan></text>
+      <text x="30" y="120" class="label-service">python-agent-baseline</text>
+      <text x="30" y="135" class="label-role">Legacy Agent Daemon [Python 3.12 + PyTorch + LangChain]</text>
+      <rect x="280" y="104" width="590.13" height="26" rx="4" fill="#d7755d" />
+      <text x="892.13" y="122" class="label-val">3737.49 MB <tspan class="badge">(Baseline)</tspan></text>
     </g>
     <g class="bar-row">
-      <text x="30" y="178" class="label-service">spark-cockpit-rs</text>
-      <text x="30" y="193" class="label-role">Telemetry Gateway & Health Cockpit [Native Rust (Axum)]</text>
+      <text x="30" y="178" class="label-service">openclaw-rs</text>
+      <text x="30" y="193" class="label-role">Sovereign Gateway & Heartbeat [Native Rust (Grace Blackwell)]</text>
       <rect x="280" y="162" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="180" class="label-val">8.57 MB <tspan class="badge">(-99.8%)</tspan></text>
+      <text x="306" y="180" class="label-val">4.79 MB <tspan class="badge">(-99.9%)</tspan></text>
     </g>
     <g class="bar-row">
       <text x="30" y="236" class="label-service">cortex-rs</text>
-      <text x="30" y="251" class="label-role">Bidirectional Knowledge Graph & Episodic Memory [Native Rust (Axum + SQLite WAL)]</text>
+      <text x="30" y="251" class="label-role">Canonical Memory Engine [Native Rust + SQLite WAL]</text>
       <rect x="280" y="220" width="4" height="26" rx="4" fill="#7fb8a6" />
-      <text x="306" y="238" class="label-val">10.30 MB <tspan class="badge">(-99.7%)</tspan></text>
+      <text x="306" y="238" class="label-val">10.67 MB <tspan class="badge">(-99.7%)</tspan></text>
     </g>
     <g class="bar-row">
-      <text x="30" y="294" class="label-service">cortex-encoder-rs</text>
-      <text x="30" y="309" class="label-role">Bi-Encoder INT8 Quantized Vector Ingestion [Native Rust (ONNX Runtime C-API)]</text>
-      <rect x="280" y="278" width="122.55157894736841" height="26" rx="4" fill="#d7755d" />
-      <text x="424.5515789473684" y="296" class="label-val">776.16 MB <tspan class="badge">(-79.2%)</tspan></text>
+      <text x="30" y="294" class="label-service">spark-cockpit-rs</text>
+      <text x="30" y="309" class="label-role">Real-time Telemetry Cockpit [Native Rust + Axum]</text>
+      <rect x="280" y="278" width="4" height="26" rx="4" fill="#7fb8a6" />
+      <text x="306" y="296" class="label-val">10.05 MB <tspan class="badge">(-99.7%)</tspan></text>
     </g>
     <g class="bar-row">
-      <text x="30" y="352" class="label-service">fastapi_minimal_baseline</text>
-      <text x="30" y="367" class="label-role">Minimal Python Server (Single Endpoint) [Python 3.12 / Uvicorn]</text>
-      <rect x="280" y="336" width="7.151052631578947" height="26" rx="4" fill="#d3a85b" />
-      <text x="309.1510526315789" y="354" class="label-val">45.29 MB <tspan class="badge">(Baseline)</tspan></text>
-    </g>
-    <g class="bar-row">
-      <text x="30" y="410" class="label-service">fastapi_full_agent_stack</text>
-      <text x="30" y="425" class="label-role">Standard Python Agent Platform (LangChain / LlamaIndex / FastAPI) [Python 3.12 / FastAPI / PyTorch runtime]</text>
-      <rect x="280" y="394" width="590.13" height="26" rx="4" fill="#d7755d" />
-      <text x="892.13" y="412" class="label-val">3737.49 MB <tspan class="badge">(Baseline)</tspan></text>
+      <text x="30" y="352" class="label-service">cortex-encoder-rs</text>
+      <text x="30" y="367" class="label-role">Neural Embedding Microservice [Rust + ONNX Runtime (BGE-M3)]</text>
+      <rect x="280" y="336" width="122.66385690789474" height="26" rx="4" fill="#d7755d" />
+      <text x="424.66385690789474" y="354" class="label-val">776.87 MB <tspan class="badge">(-79.2%)</tspan></text>
     </g>
 </svg>

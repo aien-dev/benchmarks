@@ -138,3 +138,84 @@ pub fn generate_latency_chart(data: &BenchmarkData) -> String {
         bars = bars
     )
 }
+
+pub fn generate_like_for_like_chart(data: &BenchmarkData) -> String {
+    let mut rows = String::new();
+    let max_val = 2.0f64; // Scale for latency in ms
+    let chart_w = 400.0f64;
+    let start_y = 120.0f64;
+    let row_h = 100.0f64;
+
+    for (i, m) in data.like_for_like.iter().enumerate() {
+        let y = start_y + (i as f64) * row_h;
+        let rust_w = ((m.rust_p50_ms / max_val) * chart_w).max(4.0);
+        let py_w = ((m.python_p50_ms / max_val) * chart_w).max(4.0);
+        let rust_color = "#7fb8a6";
+        let py_color = "#d7755d";
+
+        rows.push_str(&format!(
+            r##"
+    <g class="lfl-row">
+      <text x="30" y="{label_y}" class="label-service">{category}: {workload}</text>
+      <!-- Rust Bar -->
+      <text x="50" y="{rust_y}" class="label-lang-rust">Rust Native:</text>
+      <rect x="180" y="{rust_rect_y}" width="{rust_w}" height="18" rx="3" fill="{rust_color}" />
+      <text x="{rust_val_x}" y="{rust_y}" class="label-val">{rust_p50:.2} ms ({rust_rps:.0} req/s)</text>
+
+      <!-- Python Bar -->
+      <text x="50" y="{py_y}" class="label-lang-py">CPython 3.12:</text>
+      <rect x="180" y="{py_rect_y}" width="{py_w}" height="18" rx="3" fill="{py_color}" />
+      <text x="{py_val_x}" y="{py_y}" class="label-val">{py_p50:.2} ms ({py_rps:.0} req/s)</text>
+
+      <!-- Badge -->
+      <text x="820" y="{badge_y}" class="badge-speedup">{speedup:.1}x Faster</text>
+      <text x="820" y="{badge_mem_y}" class="badge-mem">(-{mem_pct:.1}% RAM)</text>
+    </g>"##,
+            label_y = y,
+            rust_y = y + 24.0,
+            rust_rect_y = y + 10.0,
+            rust_w = rust_w,
+            rust_val_x = 190.0 + rust_w + 10.0,
+            rust_p50 = m.rust_p50_ms,
+            rust_rps = m.rust_throughput_req_s,
+            py_y = y + 48.0,
+            py_rect_y = y + 34.0,
+            py_w = py_w,
+            py_val_x = 190.0 + py_w + 10.0,
+            py_p50 = m.python_p50_ms,
+            py_rps = m.python_throughput_req_s,
+            badge_y = y + 26.0,
+            badge_mem_y = y + 46.0,
+            category = m.category,
+            workload = m.workload,
+            speedup = m.speedup_factor,
+            mem_pct = m.memory_reduction_pct,
+        ));
+    }
+
+    let svg_h = (start_y + (data.like_for_like.len() as f64) * row_h + 40.0) as u32;
+
+    format!(
+        r#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 {svg_h}" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg {{ fill: #18111f; }}
+      .title {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #fff8ee; }}
+      .subtitle {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; fill: #bca9c2; }}
+      .label-service {{ font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #ded3df; }}
+      .label-lang-rust {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #7fb8a6; }}
+      .label-lang-py {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #d7755d; }}
+      .label-val {{ font-family: ui-monospace, monospace; font-size: 12px; font-weight: 600; fill: #fff8ee; }}
+      .badge-speedup {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 15px; font-weight: 800; fill: #7fb8a6; }}
+      .badge-mem {{ font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 700; fill: #ef8b67; }}
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="30" y="48" class="title">Like-for-Like Microservice Benchmark: Rust Native vs CPython 3.12</text>
+  <text x="30" y="74" class="subtitle">Identical payloads, in-memory SQLite tables, and vector workloads tested concurrently on Grace Blackwell</text>
+{rows}
+</svg>"#,
+        svg_h = svg_h,
+        rows = rows
+    )
+}

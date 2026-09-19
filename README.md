@@ -1,6 +1,6 @@
 # AIEN Sovereign Systems Performance Benchmarks
 
-[![License: SRCL-1.0](https://img.shields.io/badge/License-SRCL--1.0-8eac78.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-SRCL--1.0-blue.svg)](LICENSE)
 [![Verification](https://img.shields.io/badge/Verification-100%25%20Passing-7fb8a6.svg)](https://github.com/aien-dev/benchmarks)
 [![Architecture: Native Rust](https://img.shields.io/badge/Architecture-Native%20Rust-ef8b67.svg)](https://github.com/aien-dev/benchmarks)
 [![Reproducibility: One-Command](https://img.shields.io/badge/Harness-Active%20Measurement-d3a85b.svg)](https://github.com/aien-dev/benchmarks)
@@ -165,6 +165,12 @@ cargo test --verbose
 
 ---
 
-## Governance & License
+## License
 
 Licensed under the [Sovereign Resource Commons License 1.0 (SRCL-1.0)](LICENSE).
+
+- **Section 11 (Swarm Covenant)**: Grants complete operational freedom to developers, startups, and enterprises to build, link, deploy, and monetize with zero revenue caps.
+- **Section 12 (One Team Covenant)**: Mandates reciprocal weight transparency from well-capitalized frontier entities ($25M+), requiring resulting model weights to be released openly within 30 days.
+- **Section 13 (Dual Remedies & Retroactive Inception)**: Enforces statutory copyright damages and binding contractual covenants ab initio upon breach of reciprocal conditions.
+
+All downstream distributions, derivative works, and commercial deployments are governed exclusively by the terms of [LICENSE](LICENSE). [CONSTITUTION.md](CONSTITUTION.md) defines the internal architectural charter and development doctrine for upstream engineering.

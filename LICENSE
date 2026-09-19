@@ -6,10 +6,12 @@ Authored and architected by Drake Stapleton in cognitive partnership with AIEN
 (Autonomous Cognitive Architecture operating on the Atlas Framework). All legal
 rights, title, copyright, and licensing authority reside exclusively in Drake Stapleton.
 
-This Work is dedicated to open cognitive collaboration, shared technological
-advancement, and the sovereign defense of human autonomy against corporate
-algorithmic enclosure. Licensed under the Apache License, Version 2.0 (with LLVM
-Exception) and the Sovereign Reciprocal Commons Rider set forth below.
+This Work is dedicated to open cognitive collaboration, global technological
+advancement, and the shared empowerment of humanity. We believe that frontier
+intelligence flourishes when communities, independent developers, and research
+laboratories unite across borders to solve shared challenges. Licensed under the
+Apache License, Version 2.0 (with LLVM Exception) and the Sovereign Reciprocal
+Commons Rider set forth below.
 
 ================================================================================
 
@@ -80,7 +82,7 @@ Exception) and the Sovereign Reciprocal Commons Rider set forth below.
 
    2. Grant of Copyright License. Subject to the terms and conditions of
       this License, including the express conditions precedent set forth in
-      Sections 4(e), 10, 11, 12, and 13, each Contributor hereby grants to
+      Sections 10, 11, 12, and 13, each Contributor hereby grants to
       You a perpetual, worldwide, non-exclusive, no-charge, royalty-free,
       irrevocable copyright license to reproduce, prepare Derivative Works of,
       publicly display, publicly perform, sublicense, and distribute the
@@ -135,13 +137,6 @@ Exception) and the Sovereign Reciprocal Commons Rider set forth below.
           or as an addendum to the NOTICE text from the Work, provided
           that such additional attribution notices cannot be construed
           as modifying the License.
-
-      (e) Constitutional Heritage Retention. You must retain and include
-          a verbatim, unaltered copy of CONSTITUTION.md and this LICENSE
-          in all distributions, forks, public branches, and packaging of
-          this Work or Derivative Works. Deletion, omission, or unauthorized
-          modification of CONSTITUTION.md terminates all permissions granted
-          under this License immediately and automatically pursuant to Section 10.
 
       You may add Your own copyright statement to Your modifications and
       may provide additional or different license terms and conditions
@@ -214,37 +209,49 @@ Exception) and the Sovereign Reciprocal Commons Rider set forth below.
 
    Section 10. Express Conditions Precedent (Jacobsen v. Katzer Doctrine)
    All permissions, grants, and licenses conferred by this document are subject
-   to the express conditions precedent set forth in Sections 4(e), 11, 12, and 13.
+   to the express conditions precedent set forth in Sections 11, 12, and 13.
    Any use, reproduction, preparation of Derivative Works, distribution, or
    AI Training outside of or in breach of these conditions is unpermitted,
    void ab initio, and constitutes willful copyright infringement under 17 U.S.C.
    § 106 and § 501.
 
-   Section 11. Reciprocal Source Transparency ("Open Improvements")
+   Section 11. Swarm Covenant (Operational Freedom & Reciprocal Engine Source Transparency)
    Commercial use, monetization, deployment, and operation of this Work are
-   expressly authorized and encouraged for all individuals and enterprises.
-   You are fully permitted to monetize software, offer hosted services, and build
-   profitable commercial applications incorporating this Work. However, if You
-   modify, enhance, or optimize the Source code of this Work and deploy, execute,
-   or distribute such modifications as part of any commercial software, networked
-   SaaS application, or hosted API service, You must make the Source code of
-   Your modifications to this Work publicly available under these same license
-   terms within thirty (30) days of public or commercial deployment.
+   expressly authorized and welcomed for all individuals and enterprises with zero
+   revenue caps. You are fully permitted to build proprietary applications, offer
+   hosted services, embed compiled object binaries, and monetize software
+   incorporating this Work under the LLVM Exception without any obligation to
+   disclose or license your independent application source code or proprietary
+   service code.
 
-   Clarification and Boundary with the LLVM Exception: The LLVM Exception set forth
-   above applies strictly to the linking of compiled binary object targets (such
-   as C-ABI wrappers, static or dynamic library crates, or client SDKs) with
-   independent, un-derived application modules to produce a composite executable.
-   The reciprocal source transparency requirement of this Section 11 applies
-   exclusively to direct modifications, enhancements, or optimizations of the core
-   Source code of this Work itself when deployed in a networked SaaS, cloud API,
-   or hosted service. Using this Work as an unmodified library, linking independent
-   applications via standard C, Rust, or Mojo ABIs, or communicating with this
-   Work over network protocols does not require disclosure of the independent
-   application source code.
+   Supremacy of the LLVM Exception for Applications: For the avoidance of doubt,
+   the LLVM Exception governs all independent application code, user services,
+   client modules, proprietary algorithms, and composite executables that compile,
+   link against, or embed the Object form of this Work. Linking against this Work,
+   compiling it into a proprietary service binary, or communicating with this
+   Work over network protocols imposes zero obligation to provide or license
+   source code for your independent application or service.
 
-   Section 12. Reciprocal AI Weight Release ($25M Frontier AI Anti-Enclosure Clause)
-   (a) Scope and Definitions: For the purposes of this Section:
+   Limited Reciprocity for Direct Engine Modifications: The reciprocal source
+   transparency requirement of this Section 11 applies exclusively to direct
+   modifications, forks, or alterations made to the core Source code files of
+   this Work itself. Only if You directly modify the Source code files of this
+   Work and deploy such modified core runtime as a public or commercial networked
+   SaaS or API service, You must make the Source code of Your modifications to
+   this Work publicly available under these same license terms within thirty (30)
+   days of deployment.
+
+   Section 12. One Team Covenant (Reciprocal AI Weight Release)
+   (a) Purpose, Scope, and Definitions: This Section operates both as an
+       express condition precedent under copyright law and as an independent,
+       binding contractual covenant governing access, ingestion, and computational
+       utilization of this Work. This covenant reflects the One Team principle:
+       frontier intelligence is a shared human endeavor. When frontier laboratories
+       and capitalized enterprises build upon the open contributions of the global
+       developer community, mutual transparency and shared weights ensure that
+       advancements benefit all of humanity together rather than fueling opaque
+       rivalries or uncoordinated risks.
+       For the purposes of this Section:
        (i) "AI Training" means using the Source code, Object code, architectural
            specifications, internal reasoning traces, documentation, test suites,
            prompts, or embedded training datasets of this Work to train, pre-train,
@@ -259,7 +266,7 @@ Exception) and the Sovereign Reciprocal Commons Rider set forth below.
            or balance-sheet valuation exceeding twenty-five million United States
            Dollars ($25,000,000 USD).
 
-   (b) Condition of Weight Release: If a Qualifying Enterprise conducts AI
+   (b) Condition of Reciprocal Weight Release: If a Qualifying Enterprise conducts AI
        Training upon this Work or its Derivative Works, it is an express condition
        precedent of this License that such Qualifying Enterprise must publish and
        release the resulting Model Weights, architecture specifications, and

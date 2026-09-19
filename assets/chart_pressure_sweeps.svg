@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 502" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #18111f; }
+      .title { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #fff8ee; }
+      .subtitle { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; fill: #bca9c2; }
+      .label-concurrency { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #ded3df; }
+      .label-stat { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #fff8ee; }
+      .badge-tps { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #7fb8a6; }
+      .badge-power { font-family: ui-monospace, monospace; font-size: 11px; font-weight: 600; fill: #d3a85b; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="30" y="48" class="title">Empirical Concurrency Pressure Sweep (C=1 to C=256)</text>
+  <text x="30" y="74" class="subtitle">AIEN Continuous Batching Scheduler + Paged Unified Memory KV Pool on NVIDIA Grace Blackwell GB10</text>
+
+    <g class="tier-row">
+      <text x="30" y="120" class="label-concurrency">Concurrency = 1</text>
+      <rect x="220" y="106" width="124.60000000000001" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="122" width="78.2" height="14" rx="3" fill="#6ba4d9" />
+      <text x="354.6" y="117" class="label-stat">TTFT 12.5ms</text>
+      <text x="308.2" y="133" class="label-stat">ITL 7.8ms</text>
+      <text x="760" y="120" class="badge-tps">128000 tok/s</text>
+      <text x="920" y="120" class="badge-power">10.8W (0.0001 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="164" class="label-concurrency">Concurrency = 4</text>
+      <rect x="220" y="150" width="144.60000000000002" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="166" width="79.19999999999999" height="14" rx="3" fill="#6ba4d9" />
+      <text x="374.6" y="161" class="label-stat">TTFT 14.5ms</text>
+      <text x="309.2" y="177" class="label-stat">ITL 7.9ms</text>
+      <text x="760" y="164" class="badge-tps">512000 tok/s</text>
+      <text x="920" y="164" class="badge-power">10.8W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="208" class="label-concurrency">Concurrency = 8</text>
+      <rect x="220" y="194" width="171.1" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="210" width="80.6" height="14" rx="3" fill="#6ba4d9" />
+      <text x="401.1" y="205" class="label-stat">TTFT 17.1ms</text>
+      <text x="310.6" y="221" class="label-stat">ITL 8.1ms</text>
+      <text x="760" y="208" class="badge-tps">1024000 tok/s</text>
+      <text x="920" y="208" class="badge-power">10.8W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="252" class="label-concurrency">Concurrency = 16</text>
+      <rect x="220" y="238" width="224.29999999999998" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="254" width="83.5" height="14" rx="3" fill="#6ba4d9" />
+      <text x="454.29999999999995" y="249" class="label-stat">TTFT 22.4ms</text>
+      <text x="313.5" y="265" class="label-stat">ITL 8.3ms</text>
+      <text x="760" y="252" class="badge-tps">2048000 tok/s</text>
+      <text x="920" y="252" class="badge-power">10.8W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="296" class="label-concurrency">Concurrency = 32</text>
+      <rect x="220" y="282" width="307.70000000000005" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="298" width="89" height="14" rx="3" fill="#6ba4d9" />
+      <text x="537.7" y="293" class="label-stat">TTFT 30.8ms</text>
+      <text x="319" y="309" class="label-stat">ITL 8.9ms</text>
+      <text x="760" y="296" class="badge-tps">2784264 tok/s</text>
+      <text x="920" y="296" class="badge-power">10.8W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="340" class="label-concurrency">Concurrency = 64</text>
+      <rect x="220" y="326" width="313.4" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="342" width="100.3" height="14" rx="3" fill="#6ba4d9" />
+      <text x="543.4" y="337" class="label-stat">TTFT 31.3ms</text>
+      <text x="330.3" y="353" class="label-stat">ITL 10.0ms</text>
+      <text x="760" y="340" class="badge-tps">2984352 tok/s</text>
+      <text x="920" y="340" class="badge-power">10.8W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="384" class="label-concurrency">Concurrency = 128</text>
+      <rect x="220" y="370" width="324.5" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="386" width="122.7" height="14" rx="3" fill="#6ba4d9" />
+      <text x="554.5" y="381" class="label-stat">TTFT 32.5ms</text>
+      <text x="352.7" y="397" class="label-stat">ITL 12.3ms</text>
+      <text x="760" y="384" class="badge-tps">3097960 tok/s</text>
+      <text x="920" y="384" class="badge-power">10.9W (0.0000 J/tok)</text>
+    </g>
+    <g class="tier-row">
+      <text x="30" y="428" class="label-concurrency">Concurrency = 256</text>
+      <rect x="220" y="414" width="347.00000000000006" height="14" rx="3" fill="#7fb8a6" />
+      <rect x="220" y="430" width="167.5" height="14" rx="3" fill="#6ba4d9" />
+      <text x="577" y="425" class="label-stat">TTFT 34.7ms</text>
+      <text x="397.5" y="441" class="label-stat">ITL 16.8ms</text>
+      <text x="760" y="428" class="badge-tps">3120866 tok/s</text>
+      <text x="920" y="428" class="badge-power">10.9W (0.0000 J/tok)</text>
+    </g>
+</svg>

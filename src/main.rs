@@ -55,6 +55,16 @@ enum Commands {
     Report,
     /// Verify all metrics against baseline invariants
     Verify,
+    /// Synchronize benchmark claims in documentation files from benchmarks_latest.json
+    SyncDocs {
+        /// Target markdown documentation files to synchronize
+        #[arg(short, long)]
+        target: Vec<String>,
+
+        /// Check mode: exit with non-zero code if documentation differs from data
+        #[arg(long)]
+        check: bool,
+    },
 }
 
 fn load_data(path: &str) -> BenchmarkData {
@@ -272,7 +282,114 @@ fn main() {
             }
             println!("All invariant checks passed successfully.");
         }
+        Commands::SyncDocs { target, check } => {
+            let data = load_data(&cli.input);
+            let table = generate_markdown_table(&data);
+
+            let targets = if target.is_empty() {
+                vec![
+                    "../README.md".to_string(),
+                    "../docs/STATE_OF_AIEN.md".to_string(),
+                ]
+            } else {
+                target.clone()
+            };
+
+            let mut mismatch = false;
+            for t in &targets {
+                let p = Path::new(t);
+                if !p.exists() {
+                    println!("Target file not found, skipping: {}", t);
+                    continue;
+                }
+                let content = fs::read_to_string(p).expect("Failed to read target file");
+                let updated = sync_markdown_content(&content, &table);
+
+                if updated != content {
+                    if *check {
+                        eprintln!("Benchmark table out of date in: {}", t);
+                        mismatch = true;
+                    } else {
+                        fs::write(p, &updated).expect("Failed to write target file");
+                        println!("Synchronized benchmark table into: {}", t);
+                    }
+                } else {
+                    println!("Benchmark table already in sync: {}", t);
+                }
+            }
+
+            if mismatch {
+                std::process::exit(1);
+            }
+        }
     }
+}
+
+pub fn generate_markdown_table(data: &BenchmarkData) -> String {
+    let mut out = String::new();
+    out.push_str("<!-- AIEN:BENCHMARKS:START -->\n");
+    out.push_str("<!-- Sourced automatically from benchmarks/data/benchmarks_latest.json (Measurement Suite v");
+    out.push_str(&data.version);
+    out.push_str(") -->\n");
+    out.push_str("| Workload / Service | Architecture | Measurement ID | Resident Memory (RSS) | p50 Latency | Throughput |\n");
+    out.push_str("| :--- | :--- | :--- | :---: | :---: | :---: |\n");
+
+    for mem in &data.memory_rss {
+        let lat = data.latency_concurrency.iter().find(|l| l.service == mem.service);
+        let id = mem.measurement_id.as_deref().unwrap_or("BENCH-UNKNOWN");
+        let rss_str = if mem.reduction_pct > 0.0 {
+            format!("{:.2} MB (-{:.1}%)", mem.rss_mb, mem.reduction_pct)
+        } else {
+            format!("{:.2} MB", mem.rss_mb)
+        };
+        let (lat_str, tps_str) = match lat {
+            Some(l) => (
+                format!("{:.2} ms", l.p50_ms),
+                format!("{:.0} req/s", l.requests_per_sec),
+            ),
+            None => ("N/A".to_string(), "N/A".to_string()),
+        };
+
+        out.push_str(&format!(
+            "| {} | {} | `{}` | {} | {} | {} |\n",
+            mem.role, mem.architecture, id, rss_str, lat_str, tps_str
+        ));
+    }
+
+    out.push_str("\n*Hardware Reference: ");
+    out.push_str(&data.hardware.system);
+    out.push_str(" (");
+    out.push_str(&data.hardware.processor);
+    out.push_str(", ");
+    out.push_str(&data.hardware.memory_unified_gb.to_string());
+    out.push_str(" GB unified memory). All metrics measured under concurrency C=");
+    out.push_str(&data.environment.concurrency_tested.to_string());
+    out.push_str(" over ");
+    out.push_str(&data.environment.requests_per_endpoint.to_string());
+    out.push_str(" requests per endpoint.*\n");
+    out.push_str("<!-- AIEN:BENCHMARKS:END -->");
+    out
+}
+
+pub fn sync_markdown_content(content: &str, replacement: &str) -> String {
+    let start_marker = "<!-- AIEN:BENCHMARKS:START -->";
+    let end_marker = "<!-- AIEN:BENCHMARKS:END -->";
+
+    let start_idx = match content.find(start_marker) {
+        Some(idx) => idx,
+        None => return content.to_string(),
+    };
+
+    let end_idx = match content.find(end_marker) {
+        Some(idx) => idx + end_marker.len(),
+        None => return content.to_string(),
+    };
+
+    let mut out = String::with_capacity(content.len() + replacement.len());
+    out.push_str(&content[..start_idx]);
+    out.push_str(replacement);
+    out.push_str(&content[end_idx..]);
+    out
 }
 
 #[cfg(test)]
@@ -302,5 +419,26 @@ mod tests {
         assert!(lat_svg.contains("</svg>"), "Must contain SVG closing tag");
         assert!(!lat_svg.contains('\u{2014}'), "Must not contain em dash");
         assert!(!lat_svg.contains('\u{2013}'), "Must not contain en dash");
+    }
+
+    #[test]
+    fn test_sync_markdown_table_generation() {
+        let raw = include_str!("../data/benchmarks_latest.json");
+        let data: BenchmarkData = serde_json::from_str(raw).expect("Valid JSON");
+        let table = generate_markdown_table(&data);
+
+        assert!(table.contains("<!-- AIEN:BENCHMARKS:START -->"));
+        assert!(table.contains("<!-- AIEN:BENCHMARKS:END -->"));
+        assert!(table.contains("BENCH-FASTAPI-RSS-001"));
+        assert!(table.contains("BENCH-CORTEX-RSS-001"));
+        assert!(!table.contains('\u{2014}'), "Must not contain em dash");
+        assert!(!table.contains('\u{2013}'), "Must not contain en dash");
+
+        let doc = "# Header\n<!-- AIEN:BENCHMARKS:START -->\nold table\n<!-- AIEN:BENCHMARKS:END -->\n# Footer";
+        let synced = sync_markdown_content(doc, &table);
+        assert!(synced.contains("# Header"));
+        assert!(synced.contains("# Footer"));
+        assert!(synced.contains("BENCH-FASTAPI-RSS-001"));
+        assert!(!synced.contains("old table"));
     }
 }

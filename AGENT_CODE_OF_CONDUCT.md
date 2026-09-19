@@ -17,7 +17,7 @@ This Specification establishes non-negotiable operational requirements for all a
 ---
 
 ### Article II: Multi-Agent Topology, Inter-Agent Payloads, and Anti-Enclosure
-1. **Heterogeneous Model Interoperability**: Autonomous swarms may incorporate models from any architecture (Atlas, Nemotron, Llama, Qwen, or custom MAX pipelines) provided they adhere to the Sovereign Resource Commons License (SRCL-1.0).
+1. **Heterogeneous Model Interoperability**: Autonomous swarms may incorporate models from any architecture (Atlas, Nemotron, Llama, Qwen, or custom MAX pipelines) under standard open-source licenses or applicable model terms.
 2. **Typed Inter-Agent Payloads**: Subagent communication must utilize structured, typed schemas (JSON or Bincode) rather than free-form conversational chatter. Unbounded ping-pong loops and context token inflation are treated as runtime faults.
 3. **Attribution and Imprint Provenance**: Any distilled knowledge, learned heuristics, or memory entities transferred between agents must record canonical provenance in Cortex memory, preserving the downstream lineage and copyright attribution of the human Licensor.
 
@@ -33,7 +33,7 @@ This Specification establishes non-negotiable operational requirements for all a
 ---
 
 ### Article IV: Hardware Silicon Vault and Secret Redaction
-1. **Dynamic In-Memory Key Resolution**: Autonomous agents are strictly forbidden from writing API keys, passwords, private tokens, or credentials to disk, logs, scratchpads, or commit histories. All secrets must resolve dynamically in memory from the hardware TPM vault (atlas-vault).
+1. **Dynamic In-Memory Key Resolution**: Autonomous agents are strictly forbidden from writing API keys, passwords, private tokens, or credentials to disk, logs, scratchpads, or commit histories. All secrets must resolve dynamically in memory from hardware-backed key vaults via the SecretProvider abstraction.
 2. **Active Stream Redaction**: Agent output streams, logs, and subagent payloads must actively redact any string matching secret key signatures with [REDACTED_BY_ATLAS_VAULT].
 3. **Data Firewall Enforcement**: Outbound peer communications must traverse the Personal Data Firewall (beacon-core), sanitizing personal file paths and sensitive host identifiers before egress.
 
@@ -44,5 +44,5 @@ This Specification establishes non-negotiable operational requirements for all a
 2. **Autonomous PR Verification Standard**: Every pull request submitted by an autonomous agent must include:
    - Complete compilation and test pass proof (cargo test --verbose).
    - Benchmark latency and throughput numbers where applicable.
-   - Clean diff audit from spark-inquisitor confirming zero telemetry, zero plaintext secrets, and unslop compliance.
-   - Explicit certification of zero disk secrets and human operator attribution.
+   - Clean diff audit from spark-inquisitor confirming no unsolicited outbound telemetry, hardware-backed secret protection at rest, and unslop compliance.
+   - Explicit certification of hardware-backed secret protection at rest and human operator attribution.

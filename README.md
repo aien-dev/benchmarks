@@ -1,6 +1,6 @@
 # AIEN Sovereign Systems Performance Benchmarks
 
-[![License](https://img.shields.io/badge/License-SRCL--1.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Verification](https://img.shields.io/badge/Verification-100%25%20Passing-7fb8a6.svg)](https://github.com/aien-dev/benchmarks)
 [![Architecture: Native Rust](https://img.shields.io/badge/Architecture-Native%20Rust-ef8b67.svg)](https://github.com/aien-dev/benchmarks)
 [![Reproducibility: One-Command](https://img.shields.io/badge/Harness-Active%20Measurement-d3a85b.svg)](https://github.com/aien-dev/benchmarks)
@@ -165,12 +165,11 @@ cargo test --verbose
 
 ---
 
-## License
+## License and Governance
 
-Licensed under the [Sovereign Resource Commons License 1.0 (SRCL-1.0)](LICENSE).
+Licensed under the [Apache License, Version 2.0](LICENSE).
+Copyright (c) 2026 Drake Stapleton and AIEN Contributors. See [NOTICE](NOTICE) for attribution.
 
-- **Section 11 (Swarm Covenant)**: Grants complete operational freedom to developers, startups, and enterprises to build, link, deploy, and monetize with zero revenue caps.
-- **Section 12 (One Team Covenant)**: Mandates reciprocal weight transparency from well-capitalized frontier entities ($25M+), requiring resulting model weights to be released openly within 30 days.
-- **Section 13 (Dual Remedies & Retroactive Inception)**: Enforces statutory copyright damages and binding contractual covenants ab initio upon breach of reciprocal conditions.
-
-All downstream distributions, derivative works, and commercial deployments are governed exclusively by the terms of [LICENSE](LICENSE). [CONSTITUTION.md](CONSTITUTION.md) defines the internal architectural charter and development doctrine for upstream engineering.
+- **Benchmark Code & Harness**: Standard [Apache License 2.0](LICENSE) for universal execution, replication, and integration.
+- **Benchmark Data & Metrics**: Raw telemetry JSON, hardware timing records, and SVG comparison charts are dedicated to the public domain under [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
+- **Upstream Development Charter**: [CONSTITUTION.md](CONSTITUTION.md) defines the internal architectural doctrine and stewardship standards for upstream development and does not bind downstream users.

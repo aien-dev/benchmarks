@@ -4,6 +4,12 @@ use serde::{Deserialize, Serialize};
 pub struct BenchmarkData {
     pub benchmark_suite: String,
     pub version: String,
+    #[serde(default)]
+    pub schema_version: Option<String>,
+    #[serde(default)]
+    pub benchmark_commit: Option<String>,
+    #[serde(default)]
+    pub core_commit: Option<String>,
     pub timestamp: String,
     pub hardware: HardwareInfo,
     #[serde(default)]
@@ -45,6 +51,8 @@ pub struct EnvironmentInfo {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MemoryMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub service: String,
     pub role: String,
     pub architecture: String,
@@ -55,6 +63,8 @@ pub struct MemoryMetric {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LatencyMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub service: String,
     pub endpoint: String,
     pub description: String,
@@ -69,6 +79,8 @@ pub struct LatencyMetric {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LikeForLikeMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub category: String,
     pub workload: String,
     pub rust_engine: String,
@@ -85,6 +97,8 @@ pub struct LikeForLikeMetric {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct NeuralMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub workload: String,
     pub model: String,
     pub engine: String,
@@ -94,6 +108,8 @@ pub struct NeuralMetric {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ConcurrencyPressureMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub concurrency: u32,
     pub aien_ttft_p50_ms: f64,
     pub aien_ttft_p95_ms: f64,
@@ -108,6 +124,8 @@ pub struct ConcurrencyPressureMetric {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ContextScalingMetric {
+    #[serde(default)]
+    pub measurement_id: Option<String>,
     pub context_length: u32,
     pub ttft_p50_ms: f64,
     pub prefix_cache_hit_pct: f64,

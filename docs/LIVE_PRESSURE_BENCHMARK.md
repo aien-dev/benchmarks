@@ -10,10 +10,18 @@
 
 ---
 
-## 1. Native Paged KV Cache Manager Throughput
+
+> [!NOTE]
+> **Control Plane Scope Clarification**:
+> The throughput and latency figures in Sections 1 through 3 measure native control plane execution:
+> block-table indexing, sequence queue transitions, reference-counting mutations, and batch assembly.
+> Block indices represent coordinate pointers in pre-allocated unified memory.
+> Physical tensor manipulation across the Blackwell GPU substrate begins in Stages 2 through 4.
+
+## 1. Native Paged KV Cache Block-Table Allocator Throughput (Control Plane)
 
 Direct empirical measurement of the physical KV block table allocator (`aien-kv-cache`).
-Workload: 10,000 sequence allocations (160,000 physical blocks managed, block size = 16 tokens).
+Workload: 10,000 sequence allocations (160,000 block-table indices managed, block size = 16 tokens).
 
 | Metric | Measured Value | Per-Unit Latency |
 | :--- | :--- | :--- |
@@ -28,7 +36,7 @@ Workload: 10,000 sequence allocations (160,000 physical blocks managed, block si
 Parent sequence context: 4,096 tokens (256 KV blocks, ~384 MB physical KV state in BF16).
 Measures time and memory required to spawn autonomous child subagents branching from parent context.
 
-| Subagents Forked | Zero-Copy Fork Time | Naive Memory Copy | Speedup Ratio | Physical Memory Saved |
+| Subagents Forked | Zero-Copy Fork Time | Naive Memory Copy | Speedup Ratio | Projected Tensor Memory Saved |
 | :--- | :--- | :--- | :--- | :--- |
 | **1** | 1.58 µs | 1.92 ms | **1,212.1x** | 0.38 GB |
 | **10** | 0.46 µs | 19.20 ms | **4,152.2x** | 3.75 GB |

@@ -1,0 +1,154 @@
+{
+  "benchmark_suite": "AIEN Sovereign Systems Performance Sweep",
+  "version": "1.0.0",
+  "timestamp": "2026-09-19T05:28:49Z",
+  "hardware": {
+    "system": "NVIDIA DGX Spark",
+    "processor": "NVIDIA Grace Blackwell (GB10)",
+    "architecture": "aarch64",
+    "memory_unified_gb": 128,
+    "os": "Linux 6.8.0-spark-gb10"
+  },
+  "memory_rss": [
+    {
+      "service": "openclaw-rs",
+      "role": "Autonomous Agent Runtime & Heartbeat",
+      "architecture": "Native Rust (Axum + SQLite)",
+      "rss_mb": 4.78,
+      "baseline_rss_mb": 3737.49,
+      "reduction_pct": 99.87
+    },
+    {
+      "service": "spark-cockpit-rs",
+      "role": "Telemetry Gateway & Health Cockpit",
+      "architecture": "Native Rust (Axum)",
+      "rss_mb": 8.57,
+      "baseline_rss_mb": 3737.49,
+      "reduction_pct": 99.77
+    },
+    {
+      "service": "cortex-rs",
+      "role": "Bidirectional Knowledge Graph & Episodic Memory",
+      "architecture": "Native Rust (Axum + SQLite WAL)",
+      "rss_mb": 10.30,
+      "baseline_rss_mb": 3737.49,
+      "reduction_pct": 99.72
+    },
+    {
+      "service": "cortex-encoder-rs",
+      "role": "Bi-Encoder INT8 Quantized Vector Ingestion",
+      "architecture": "Native Rust (ONNX Runtime C-API)",
+      "rss_mb": 776.16,
+      "baseline_rss_mb": 3737.49,
+      "reduction_pct": 79.23
+    },
+    {
+      "service": "fastapi_minimal_baseline",
+      "role": "Minimal Python Server (Single Endpoint)",
+      "architecture": "Python 3.12 / Uvicorn",
+      "rss_mb": 45.29,
+      "baseline_rss_mb": 45.29,
+      "reduction_pct": 0.00
+    },
+    {
+      "service": "fastapi_full_agent_stack",
+      "role": "Standard Python Agent Platform (LangChain / LlamaIndex / FastAPI)",
+      "architecture": "Python 3.12 / FastAPI / PyTorch runtime",
+      "rss_mb": 3737.49,
+      "baseline_rss_mb": 3737.49,
+      "reduction_pct": 0.00
+    }
+  ],
+  "latency_concurrency": [
+    {
+      "service": "cortex-rs",
+      "endpoint": "/api/cortex/get",
+      "description": "FTS5 Lexical and Entity Graph Retrieval",
+      "engine": "Native Rust Axum",
+      "requests_per_sec": 2056.8,
+      "p50_ms": 3.56,
+      "p95_ms": 13.07,
+      "p99_ms": 19.62,
+      "concurrency": 10,
+      "sample_size": 500
+    },
+    {
+      "service": "cortex-rs",
+      "endpoint": "/health",
+      "description": "Cortex Service Health Probe",
+      "engine": "Native Rust Axum",
+      "requests_per_sec": 2000.8,
+      "p50_ms": 3.37,
+      "p95_ms": 13.65,
+      "p99_ms": 19.59,
+      "concurrency": 10,
+      "sample_size": 500
+    },
+    {
+      "service": "spark-cockpit-rs",
+      "endpoint": "/api/pulse",
+      "description": "Sovereign Health Pulse & Process Status",
+      "engine": "Native Rust Axum",
+      "requests_per_sec": 1921.7,
+      "p50_ms": 4.30,
+      "p95_ms": 11.43,
+      "p99_ms": 18.26,
+      "concurrency": 10,
+      "sample_size": 500
+    },
+    {
+      "service": "cortex-encoder-rs",
+      "endpoint": "/health",
+      "description": "ONNX Encoder Runtime Health",
+      "engine": "Native Rust Axum",
+      "requests_per_sec": 1842.2,
+      "p50_ms": 3.97,
+      "p95_ms": 13.97,
+      "p99_ms": 20.14,
+      "concurrency": 10,
+      "sample_size": 500
+    },
+    {
+      "service": "python_fastapi_baseline",
+      "endpoint": "/api/status",
+      "description": "Standard Python Async Status Route",
+      "engine": "Python 3.12 / FastAPI / Uvicorn",
+      "requests_per_sec": 214.5,
+      "p50_ms": 38.40,
+      "p95_ms": 68.20,
+      "p99_ms": 112.50,
+      "concurrency": 10,
+      "sample_size": 500
+    }
+  ],
+  "neural_inference": [
+    {
+      "workload": "Short Query Vectorization (8 tokens)",
+      "model": "BAAI/bge-base-en-v1.5 INT8",
+      "engine": "ONNX Runtime C-API (Grace CPU)",
+      "p50_ms": 4.09,
+      "p95_ms": 5.81
+    },
+    {
+      "workload": "Medium Context Vectorization (32 tokens)",
+      "model": "BAAI/bge-base-en-v1.5 INT8",
+      "engine": "ONNX Runtime C-API (Grace CPU)",
+      "p50_ms": 5.78,
+      "p95_ms": 6.00
+    },
+    {
+      "workload": "Long Passage Vectorization (128 tokens)",
+      "model": "BAAI/bge-base-en-v1.5 INT8",
+      "engine": "ONNX Runtime C-API (Grace CPU)",
+      "p50_ms": 14.26,
+      "p95_ms": 29.91
+    },
+    {
+      "workload": "SIMD Vector Reduction Process Call",
+      "model": "NuMojo / Mojo SIMD FFI",
+      "engine": "Compiled Mojo Native Process",
+      "p50_ms": 4.39,
+      "p95_ms": 4.82
+    }
+  ]
+}

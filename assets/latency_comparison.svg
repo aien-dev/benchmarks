@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 500" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #18111f; }
+      .title { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 20px; font-weight: 700; fill: #fff8ee; }
+      .subtitle { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 13px; fill: #bca9c2; }
+      .label-service { font-family: ui-monospace, monospace; font-size: 14px; font-weight: 700; fill: #ded3df; }
+      .label-role { font-family: ui-sans-serif, system-ui, sans-serif; font-size: 11px; fill: #8eac78; }
+      .label-val { font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; fill: #fff8ee; }
+      .throughput { font-size: 12px; font-weight: 600; fill: #ef8b67; }
+      .grid { stroke: rgba(222, 211, 223, 0.12); stroke-width: 1; }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="30" y="48" class="title">HTTP Gateway Latency (p50 TTFB) and Throughput</text>
+  <text x="30" y="74" class="subtitle">Localhost multi-threaded sweep: concurrency=10, 500 requests per endpoint on Grace Blackwell</text>
+  <line x1="360" y1="95" x2="360" y2="470" class="grid" />
+  <line x1="640" y1="95" x2="640" y2="470" class="grid" />
+  <line x1="920" y1="95" x2="920" y2="470" class="grid" />
+
+    <g class="bar-row">
+      <text x="30" y="120" class="label-service">cortex-rs /api/cortex/get</text>
+      <text x="30" y="136" class="label-role">FTS5 Lexical and Entity Graph Retrieval [Native Rust Axum]</text>
+      <rect x="360" y="104" width="44.30222222222223" height="28" rx="4" fill="#7fb8a6" />
+      <text x="426.3022222222222" y="123" class="label-val">3.56 ms <tspan class="throughput">(2056.8 req/s)</tspan></text>
+    </g>
+    <g class="bar-row">
+      <text x="30" y="188" class="label-service">cortex-rs /health</text>
+      <text x="30" y="204" class="label-role">Cortex Service Health Probe [Native Rust Axum]</text>
+      <rect x="360" y="172" width="41.93777777777778" height="28" rx="4" fill="#7fb8a6" />
+      <text x="423.9377777777778" y="191" class="label-val">3.37 ms <tspan class="throughput">(2000.8 req/s)</tspan></text>
+    </g>
+    <g class="bar-row">
+      <text x="30" y="256" class="label-service">spark-cockpit-rs /api/pulse</text>
+      <text x="30" y="272" class="label-role">Sovereign Health Pulse & Process Status [Native Rust Axum]</text>
+      <rect x="360" y="240" width="53.511111111111106" height="28" rx="4" fill="#7fb8a6" />
+      <text x="435.5111111111111" y="259" class="label-val">4.30 ms <tspan class="throughput">(1921.7 req/s)</tspan></text>
+    </g>
+    <g class="bar-row">
+      <text x="30" y="324" class="label-service">cortex-encoder-rs /health</text>
+      <text x="30" y="340" class="label-role">ONNX Encoder Runtime Health [Native Rust Axum]</text>
+      <rect x="360" y="308" width="49.40444444444445" height="28" rx="4" fill="#7fb8a6" />
+      <text x="431.40444444444444" y="327" class="label-val">3.97 ms <tspan class="throughput">(1842.2 req/s)</tspan></text>
+    </g>
+    <g class="bar-row">
+      <text x="30" y="392" class="label-service">python_fastapi_baseline /api/status</text>
+      <text x="30" y="408" class="label-role">Standard Python Async Status Route [Python 3.12 / FastAPI / Uvicorn]</text>
+      <rect x="360" y="376" width="477.8666666666666" height="28" rx="4" fill="#d7755d" />
+      <text x="859.8666666666666" y="395" class="label-val">38.40 ms <tspan class="throughput">(214.5 req/s)</tspan></text>
+    </g>
+</svg>

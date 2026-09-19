@@ -1,0 +1,8 @@
+# AIEN Benchmarks: Architecture and Verification Index
+
+- Repository: aien-dev/benchmarks
+- Primary Language: Rust (100% compiled native)
+- Hardware: NVIDIA DGX Spark (Grace Blackwell GB10, aarch64, 128GB unified memory)
+- Test Suite: cargo test --verbose
+- Verification Command: cargo run --release -- verify
+- Data Source: data/benchmarks_20260919.json

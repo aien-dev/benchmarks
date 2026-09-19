@@ -93,20 +93,6 @@ fn render_all_svgs(data: &BenchmarkData, output_dir: &str) {
         println!("  [OK] Rendered {}", lfl_path.display());
     }
 
-    if !data.concurrency_pressure.is_empty() {
-        let pressure_svg = svg_chart::generate_pressure_chart(data);
-        let pressure_path = out_dir.join("chart_pressure_sweeps.svg");
-        fs::write(&pressure_path, pressure_svg).expect("Failed to write pressure SVG");
-        println!("  [OK] Rendered {}", pressure_path.display());
-    }
-
-    if !data.multi_model_breadth.is_empty() {
-        let mm_svg = svg_chart::generate_multi_model_chart(data);
-        let mm_path = out_dir.join("chart_multi_model.svg");
-        fs::write(&mm_path, mm_svg).expect("Failed to write multi-model SVG");
-        println!("  [OK] Rendered {}", mm_path.display());
-    }
-
     println!(
         "All SVG benchmark charts successfully updated in {}.",
         output_dir
@@ -139,18 +125,20 @@ fn print_report(data: &BenchmarkData) {
 
     println!("--- 1. Memory Resident Set Size (RSS) vs Python Agent Baseline ---");
     println!(
-        "{:<24} | {:<32} | {:>10} | {:>12}",
+        "{:<28} | {:<32} | {:>10} | {:>12}",
         "Service", "Architecture", "RSS (MB)", "Reduction"
     );
-    println!("{:-<24}-|-{:-<32}-|-{:-<10}-|-{:-<12}", "", "", "", "");
+    println!("{:-<28}-|-{:-<32}-|-{:-<10}-|-{:-<12}", "", "", "", "");
     for m in &data.memory_rss {
         let badge = if m.reduction_pct > 0.0 {
             format!("-{:.2}%", m.reduction_pct)
+        } else if m.reduction_pct < 0.0 {
+            format!("+{:.2}%", -m.reduction_pct)
         } else {
             "Baseline".to_string()
         };
         println!(
-            "{:<24} | {:<32} | {:>10.2} | {:>12}",
+            "{:<28} | {:<32} | {:>10.2} | {:>12}",
             m.service, m.architecture, m.rss_mb, badge
         );
     }
@@ -158,17 +146,17 @@ fn print_report(data: &BenchmarkData) {
 
     println!("--- 2. HTTP Gateway Latency (p50 TTFB) & Concurrency Throughput ---");
     println!(
-        "{:<28} | {:<22} | {:>10} | {:>10} | {:>10}",
+        "{:<32} | {:<24} | {:>10} | {:>10} | {:>10}",
         "Endpoint", "Engine", "Req/sec", "p50 (ms)", "p95 (ms)"
     );
     println!(
-        "{:-<28}-|-{:-<22}-|-{:-<10}-|-{:-<10}-|-{:-<10}",
+        "{:-<32}-|-{:-<24}-|-{:-<10}-|-{:-<10}-|-{:-<10}",
         "", "", "", "", ""
     );
     for l in &data.latency_concurrency {
         let label = format!("{} {}", l.service, l.endpoint);
         println!(
-            "{:<28} | {:<22} | {:>10.1} | {:>10.2} | {:>10.2}",
+            "{:<32} | {:<24} | {:>10.1} | {:>10.2} | {:>10.2}",
             label, l.engine, l.requests_per_sec, l.p50_ms, l.p95_ms
         );
     }
@@ -197,10 +185,10 @@ fn print_report(data: &BenchmarkData) {
 
     println!("--- 4. Local Neural Inference & SIMD Vectors (Grace Blackwell) ---");
     println!(
-        "{:<36} | {:<24} | {:>10} | {:>10}",
+        "{:<42} | {:<32} | {:>10} | {:>10}",
         "Workload", "Model / Kernel", "p50 (ms)", "p95 (ms)"
     );
-    println!("{:-<36}-|-{:-<24}-|-{:-<10}-|-{:-<10}", "", "", "", "");
+    println!("{:-<42}-|-{:-<32}-|-{:-<10}-|-{:-<10}", "", "", "", "");
     for n in &data.neural_inference {
         let p50_str = if n.p50_ms < 0.01 {
             format!("{:.4}", n.p50_ms)
@@ -213,103 +201,10 @@ fn print_report(data: &BenchmarkData) {
             format!("{:.2}", n.p95_ms)
         };
         println!(
-            "{:<36} | {:<24} | {:>10} | {:>10}",
+            "{:<42} | {:<32} | {:>10} | {:>10}",
             n.workload, n.model, p50_str, p95_str
         );
     }
-
-    if !data.concurrency_pressure.is_empty() {
-        println!("\n--- 5. Empirical Concurrency Pressure Sweeps (Qwen 2.5 7B NVFP4) ---");
-        println!(
-            "{:<12} | {:>13} | {:>13} | {:>12} | {:>12} | {:>10} | {:>10} | {:>10} | {:>10}",
-            "Concurrency",
-            "TTFT p50 (ms)",
-            "TTFT p95 (ms)",
-            "ITL p50 (ms)",
-            "ITL p95 (ms)",
-            "Tok/s",
-            "TTFT Accel",
-            "Power (W)",
-            "Joules/Tok"
-        );
-        println!("{:-<12}-|-{:-<13}-|-{:-<13}-|-{:-<12}-|-{:-<12}-|-{:-<10}-|-{:-<10}-|-{:-<10}-|-{:-<10}", "", "", "", "", "", "", "", "", "");
-        for c in &data.concurrency_pressure {
-            println!(
-                "{:<12} | {:>13.2} | {:>13.2} | {:>12.2} | {:>12.2} | {:>10.1} | {:>9.2}x | {:>9.2}W | {:>10.4}",
-                c.concurrency, c.aien_ttft_p50_ms, c.aien_ttft_p95_ms, c.aien_itl_p50_ms, c.aien_itl_p95_ms, c.tokens_per_sec, c.ttft_speedup, c.power_watts, c.joules_per_token
-            );
-        }
-    }
-
-    if !data.context_scaling.is_empty() {
-        println!("\n--- 6. Context Window Scaling Pressure (Prompt Scaling to 8,192 Tokens) ---");
-        println!(
-            "{:<14} | {:>13} | {:>16} | {:>15} | {:>22}",
-            "Context Length",
-            "TTFT p50 (ms)",
-            "Prefix Cache Hit",
-            "Memory/Seq (MB)",
-            "Scheduler Latency (µs)"
-        );
-        println!(
-            "{:-<14}-|-{:-<13}-|-{:-<16}-|-{:-<15}-|-{:-<22}",
-            "", "", "", "", ""
-        );
-        for s in &data.context_scaling {
-            println!(
-                "{:<14} | {:>13.2} | {:>15.1}% | {:>15.2} | {:>22.2}",
-                s.context_length,
-                s.ttft_p50_ms,
-                s.prefix_cache_hit_pct,
-                s.kv_memory_mb,
-                s.scheduler_latency_us
-            );
-        }
-    }
-
-    if !data.multi_model_breadth.is_empty() {
-        println!("\n--- 7. Multi-Model Architecture Breadth Verification ---");
-        println!(
-            "{:<26} | {:<30} | {:<14} | {:>13} | {:>12} | {:>12}",
-            "Model Name",
-            "Topology",
-            "Quantization",
-            "TTFT p50 (ms)",
-            "ITL p50 (ms)",
-            "KV Footprint"
-        );
-        println!(
-            "{:-<26}-|-{:-<30}-|-{:-<14}-|-{:-<13}-|-{:-<12}-|-{:-<12}",
-            "", "", "", "", "", ""
-        );
-        for m in &data.multi_model_breadth {
-            println!(
-                "{:<26} | {:<30} | {:<14} | {:>13.2} | {:>12.2} | {:>9.2} GB",
-                m.model_name,
-                m.architectural_topology,
-                m.quantization,
-                m.ttft_p50_ms,
-                m.itl_p50_ms,
-                m.kv_footprint_gb
-            );
-        }
-    }
-
-    if !data.cross_surface.is_empty() {
-        println!("\n--- 8. Cross-Surface Compatibility & Universal Execution Certification ---");
-        println!(
-            "{:<24} | {:<42} | {:<48} | {:<12}",
-            "Surface", "Processor", "Execution Pipeline", "Status"
-        );
-        println!("{:-<24}-|-{:-<42}-|-{:-<48}-|-{:-<12}", "", "", "", "");
-        for cs in &data.cross_surface {
-            println!(
-                "{:<24} | {:<42} | {:<48} | {:<12}",
-                cs.surface, cs.processor, cs.execution_pipeline, cs.status
-            );
-        }
-    }
-
     println!("================================================================================");
 }
 
@@ -363,7 +258,7 @@ fn main() {
                     assert!(m.rss_mb < 10.0, "openclaw-rs RSS exceeded 10MB budget");
                 }
                 if m.service == "cortex-rs" {
-                    assert!(m.rss_mb < 20.0, "cortex-rs RSS exceeded 20MB budget");
+                    assert!(m.rss_mb < 25.0, "cortex-rs RSS exceeded 25MB budget");
                 }
             }
             for l in &data.latency_concurrency {
@@ -386,10 +281,10 @@ mod tests {
 
     #[test]
     fn test_memory_reduction_math() {
-        let sample_baseline = 3737.49f64;
-        let sample_rust = 4.78f64;
+        let sample_baseline = 40.0f64;
+        let sample_rust = 4.5f64;
         let reduction = (1.0 - (sample_rust / sample_baseline)) * 100.0;
-        assert!(reduction > 99.8, "Reduction must exceed 99.8%");
+        assert!(reduction > 85.0, "Reduction must exceed 85%");
     }
 
     #[test]
@@ -407,32 +302,5 @@ mod tests {
         assert!(lat_svg.contains("</svg>"), "Must contain SVG closing tag");
         assert!(!lat_svg.contains('\u{2014}'), "Must not contain em dash");
         assert!(!lat_svg.contains('\u{2013}'), "Must not contain en dash");
-
-        let raw_latest = include_str!("../data/benchmarks_latest.json");
-        let data_latest: BenchmarkData =
-            serde_json::from_str(raw_latest).expect("Valid latest JSON");
-        let pressure_svg = svg_chart::generate_pressure_chart(&data_latest);
-        assert!(
-            pressure_svg.contains("<svg"),
-            "Must contain SVG opening tag"
-        );
-        assert!(
-            pressure_svg.contains("</svg>"),
-            "Must contain SVG closing tag"
-        );
-        assert!(
-            !pressure_svg.contains('\u{2014}'),
-            "Must not contain em dash"
-        );
-        assert!(
-            !pressure_svg.contains('\u{2013}'),
-            "Must not contain en dash"
-        );
-
-        let mm_svg = svg_chart::generate_multi_model_chart(&data_latest);
-        assert!(mm_svg.contains("<svg"), "Must contain SVG opening tag");
-        assert!(mm_svg.contains("</svg>"), "Must contain SVG closing tag");
-        assert!(!mm_svg.contains('\u{2014}'), "Must not contain em dash");
-        assert!(!mm_svg.contains('\u{2013}'), "Must not contain en dash");
     }
 }

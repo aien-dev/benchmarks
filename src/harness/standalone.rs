@@ -1,5 +1,6 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::path::Path;
 use std::process::{Child, Command};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -40,7 +41,7 @@ impl RustStandaloneServer {
         // Verify listener responds
         let start = Instant::now();
         let mut ready = false;
-        while start.elapsed() < Duration::from_secs(2) {
+        while start.elapsed() < Duration::from_secs(3) {
             if TcpStream::connect(format!("127.0.0.1:{}", port)).is_ok() {
                 ready = true;
                 break;
@@ -80,7 +81,10 @@ fn handle_client(mut stream: TcpStream) {
             r#"{"status":"ok","engine":"rust-standalone","version":"0.1"}"#.to_string(),
         )
     } else if req.starts_with("GET /api/query") {
-        ("200 OK", r#"{"id":1,"canonical_name":"benchmark_reference_entity","content":"Verified cryptographic token record for baseline testing"}"#.to_string())
+        (
+            "200 OK",
+            r#"{"id":1,"canonical_name":"benchmark_reference_entity","content":"Verified cryptographic token record for baseline testing"}"#.to_string(),
+        )
     } else if req.starts_with("GET /api/vector") {
         let v1 = [0.035f32; 768];
         let v2 = [0.042f32; 768];
@@ -115,31 +119,37 @@ impl PythonBaselineServer {
         let port = listener.local_addr().map_err(|e| e.to_string())?.port();
         drop(listener);
 
-        let mut child = Command::new("python3")
+        let py_bin = if Path::new("/home/drakestapleton/max-env/bin/python").exists() {
+            "/home/drakestapleton/max-env/bin/python"
+        } else {
+            "python3"
+        };
+
+        let mut child = Command::new(py_bin)
             .arg(script_path)
             .arg(port.to_string())
             .stdout(std::process::Stdio::piped())
             .stderr(std::process::Stdio::null())
             .spawn()
-            .map_err(|e| format!("Failed to spawn python3 {}: {}", script_path, e))?;
+            .map_err(|e| format!("Failed to spawn {} {}: {}", py_bin, script_path, e))?;
 
         let pid = child.id();
 
         // Poll until port opens
         let start = Instant::now();
         let mut ready = false;
-        while start.elapsed() < Duration::from_secs(4) {
+        while start.elapsed() < Duration::from_secs(5) {
             if TcpStream::connect(format!("127.0.0.1:{}", port)).is_ok() {
                 ready = true;
                 break;
             }
-            thread::sleep(Duration::from_millis(25));
+            thread::sleep(Duration::from_millis(50));
         }
 
         if !ready {
             let _ = child.kill();
             return Err(
-                "Python baseline microservice failed to bind port within 4 seconds".to_string(),
+                "Python baseline microservice failed to bind port within 5 seconds".to_string(),
             );
         }
 

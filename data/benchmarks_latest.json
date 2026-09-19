@@ -1,7 +1,7 @@
 {
   "benchmark_suite": "AIEN Sovereign Systems Performance Benchmark Suite",
   "version": "0.2.0",
-  "timestamp": "2026-09-19T06:13:12Z",
+  "timestamp": "2026-09-19T12:19:36Z",
   "hardware": {
     "system": "NVIDIA DGX Spark",
     "processor": "NVIDIA Grace Blackwell (GB10, aarch64)",
@@ -20,56 +20,68 @@
   },
   "memory_rss": [
     {
-      "service": "python-agent-baseline",
-      "role": "Legacy Agent Daemon",
-      "architecture": "Python 3.12 + PyTorch + LangChain",
-      "rss_mb": 3737.49,
-      "baseline_rss_mb": 3737.49,
+      "service": "python-fastapi-baseline",
+      "role": "Python Microservice Baseline",
+      "architecture": "Python 3.12 + FastAPI + Uvicorn",
+      "rss_mb": 44.7578125,
+      "baseline_rss_mb": 44.7578125,
       "reduction_pct": 0.0
     },
     {
       "service": "openclaw-rs",
       "role": "Sovereign Gateway & Heartbeat",
       "architecture": "Native Rust (Grace Blackwell)",
-      "rss_mb": 4.7890625,
-      "baseline_rss_mb": 3737.49,
-      "reduction_pct": 99.87186420565673
+      "rss_mb": 4.5625,
+      "baseline_rss_mb": 44.7578125,
+      "reduction_pct": 89.80624890905918
     },
     {
       "service": "cortex-rs",
       "role": "Canonical Memory Engine",
       "architecture": "Native Rust + SQLite WAL",
-      "rss_mb": 10.66796875,
-      "baseline_rss_mb": 3737.49,
-      "reduction_pct": 99.71456863429735
+      "rss_mb": 18.6640625,
+      "baseline_rss_mb": 44.7578125,
+      "reduction_pct": 58.29987781462733
     },
     {
       "service": "spark-cockpit-rs",
       "role": "Real-time Telemetry Cockpit",
       "architecture": "Native Rust + Axum",
-      "rss_mb": 10.0546875,
-      "baseline_rss_mb": 3737.49,
-      "reduction_pct": 99.73097754107704
+      "rss_mb": 12.8984375,
+      "baseline_rss_mb": 44.7578125,
+      "reduction_pct": 71.18170710420667
     },
     {
       "service": "cortex-encoder-rs",
       "role": "Neural Embedding Microservice",
       "architecture": "Rust + ONNX Runtime (BGE-M3)",
-      "rss_mb": 776.87109375,
-      "baseline_rss_mb": 3737.49,
-      "reduction_pct": 79.21409572333305
+      "rss_mb": 777.4296875,
+      "baseline_rss_mb": 44.7578125,
+      "reduction_pct": -1636.9698027578984
     }
   ],
   "latency_concurrency": [
+    {
+      "service": "python-fastapi-baseline",
+      "endpoint": "/api/status",
+      "description": "Python FastAPI Baseline Ping",
+      "engine": "CPython 3.12 + Uvicorn",
+      "requests_per_sec": 7251.634456767662,
+      "p50_ms": 1.279927,
+      "p95_ms": 1.8760649999999999,
+      "p99_ms": 2.845506,
+      "concurrency": 10,
+      "sample_size": 500
+    },
     {
       "service": "cortex-rs",
       "endpoint": "/api/cortex/get",
       "description": "Cortex Canonical Retrieval",
       "engine": "Rust Axum + SQLite WAL",
-      "requests_per_sec": 21262.38794562085,
-      "p50_ms": 0.447443,
-      "p95_ms": 0.563971,
-      "p99_ms": 0.608196,
+      "requests_per_sec": 19366.59460744145,
+      "p50_ms": 0.500521,
+      "p95_ms": 0.648539,
+      "p99_ms": 0.691612,
       "concurrency": 10,
       "sample_size": 500
     },
@@ -78,10 +90,10 @@
       "endpoint": "/api/pulse",
       "description": "Real-time System Pulse",
       "engine": "Rust Axum",
-      "requests_per_sec": 4421.535388775437,
-      "p50_ms": 1.741818,
-      "p95_ms": 4.356312,
-      "p99_ms": 4.852988,
+      "requests_per_sec": 5840.155891047593,
+      "p50_ms": 1.626221,
+      "p95_ms": 2.437931,
+      "p99_ms": 2.85925,
       "concurrency": 10,
       "sample_size": 500
     },
@@ -90,10 +102,10 @@
       "endpoint": "/health",
       "description": "ONNX Runtime Service Health",
       "engine": "Rust Axum + ONNX Runtime",
-      "requests_per_sec": 37214.5726014259,
-      "p50_ms": 0.241249,
-      "p95_ms": 0.34029,
-      "p99_ms": 0.433058,
+      "requests_per_sec": 34684.61831519883,
+      "p50_ms": 0.262245,
+      "p95_ms": 0.354534,
+      "p99_ms": 0.39714299999999997,
       "concurrency": 10,
       "sample_size": 500
     }
@@ -103,289 +115,91 @@
       "category": "HTTP Microservice",
       "workload": "Minimal JSON Status Ping (/api/status)",
       "rust_engine": "Rust Standalone (Native Compiled)",
-      "rust_p50_ms": 0.230466,
-      "rust_throughput_req_s": 19262.996223451064,
-      "rust_rss_mb": 2.51953125,
-      "python_engine": "Python ThreadingHTTPServer (CPython 3.12)",
-      "python_p50_ms": 1.342264,
-      "python_throughput_req_s": 458.58409670946475,
-      "python_rss_mb": 19.59375,
-      "speedup_factor": 5.82413024046931,
-      "memory_reduction_pct": 87.14114832535886
+      "rust_p50_ms": 0.348902,
+      "rust_throughput_req_s": 13774.094058550038,
+      "rust_rss_mb": 2.57421875,
+      "python_engine": "Python 3.12 + FastAPI / Uvicorn",
+      "python_p50_ms": 1.279927,
+      "python_throughput_req_s": 7251.634456767662,
+      "python_rss_mb": 44.7578125,
+      "speedup_factor": 3.6684427145731466,
+      "memory_reduction_pct": 94.24855995810788
     },
     {
       "category": "Database & Serialization",
       "workload": "Single Entity Query & JSON Serialization (/api/query)",
       "rust_engine": "Rust Standalone (Native Compiled)",
-      "rust_p50_ms": 0.22195299999999998,
-      "rust_throughput_req_s": 25275.92974221686,
-      "rust_rss_mb": 2.51953125,
+      "rust_p50_ms": 0.37095100000000003,
+      "rust_throughput_req_s": 13202.57537884988,
+      "rust_rss_mb": 2.57421875,
       "python_engine": "Python + SQLite3 stdlib",
-      "python_p50_ms": 1.545881,
-      "python_throughput_req_s": 418.1456049165399,
-      "python_rss_mb": 19.59375,
-      "speedup_factor": 6.9649024793537375,
-      "memory_reduction_pct": 87.14114832535886
+      "python_p50_ms": 2.8422899999999998,
+      "python_throughput_req_s": 3127.750954706882,
+      "python_rss_mb": 44.7578125,
+      "speedup_factor": 7.662171014500566,
+      "memory_reduction_pct": 94.24855995810788
     },
     {
       "category": "Vector & SIMD Compute",
       "workload": "768-dimensional Vector Dot Product (/api/vector)",
       "rust_engine": "Rust SIMD Vector Loop",
-      "rust_p50_ms": 0.9459890000000001,
-      "rust_throughput_req_s": 13325.950401452252,
-      "rust_rss_mb": 2.51953125,
+      "rust_p50_ms": 0.230292,
+      "rust_throughput_req_s": 16824.226104947033,
+      "rust_rss_mb": 2.57421875,
       "python_engine": "Python List Comprehension",
-      "python_p50_ms": 1.379719,
-      "python_throughput_req_s": 481.96001540378904,
-      "python_rss_mb": 19.59375,
-      "speedup_factor": 1.4584937034151557,
-      "memory_reduction_pct": 87.14114832535886
+      "python_p50_ms": 1.582107,
+      "python_throughput_req_s": 6130.43671342972,
+      "python_rss_mb": 44.7578125,
+      "speedup_factor": 6.870004168620707,
+      "memory_reduction_pct": 94.24855995810788
     }
   ],
   "neural_inference": [
     {
-      "workload": "First Token Latency (TTFT) - AIEN Sovereign",
-      "model": "Qwen 2.5 7B (NVFP4)",
-      "engine": "AIEN Stack (Rust + Mojo/MAX GPU)",
-      "p50_ms": 12.46,
-      "p95_ms": 12.46
+      "workload": "First Token Latency (TTFT) - GPU Seat",
+      "model": "Nemotron 3.5 Lightning 30B (BF16)",
+      "engine": "Modular MAX (Grace Blackwell GB10 GPU)",
+      "p50_ms": 426.91011000000003,
+      "p95_ms": 426.91011000000003
     },
     {
-      "workload": "First Token Latency (TTFT) - vLLM Baseline",
-      "model": "Qwen 2.5 7B (NVFP4)",
-      "engine": "vLLM NVFP4 on Grace Blackwell",
-      "p50_ms": 22.4,
-      "p95_ms": 26.8
+      "workload": "Inter-Token Latency (ITL) - GPU Seat",
+      "model": "Nemotron 3.5 Lightning 30B (BF16)",
+      "engine": "Modular MAX (Grace Blackwell GB10 GPU)",
+      "p50_ms": 46.914306,
+      "p95_ms": 47.881523
     },
     {
-      "workload": "Inter-Token Latency (ITL) - AIEN Sovereign",
-      "model": "Qwen 2.5 7B (NVFP4)",
-      "engine": "AIEN Stack (Rust + Mojo/MAX GPU)",
-      "p50_ms": 7.82,
-      "p95_ms": 7.82
+      "workload": "First Token Latency (TTFT) - CPU Fallback",
+      "model": "Llama 3.2 1B Instruct (Q4_K)",
+      "engine": "Modular MAX (Grace Neoverse CPU)",
+      "p50_ms": 155.398386,
+      "p95_ms": 155.398386
     },
     {
-      "workload": "Inter-Token Latency (ITL) - vLLM Baseline",
-      "model": "Qwen 2.5 7B (NVFP4)",
-      "engine": "vLLM NVFP4 on Grace Blackwell",
-      "p50_ms": 9.8,
-      "p95_ms": 12.1
+      "workload": "Inter-Token Latency (ITL) - CPU Fallback",
+      "model": "Llama 3.2 1B Instruct (Q4_K)",
+      "engine": "Modular MAX (Grace Neoverse CPU)",
+      "p50_ms": 88.819947,
+      "p95_ms": 99.418419
     },
     {
-      "workload": "Memory Embedding Batch (512 tokens)",
-      "model": "BGE-M3 (bfloat16)",
-      "engine": "cortex-encoder-rs (ONNX/CUDA)",
-      "p50_ms": 14.6,
-      "p95_ms": 18.2
+      "workload": "Bi-Encoder Vector Embedding",
+      "model": "BAAI/bge-base-en-v1.5 (INT8)",
+      "engine": "cortex-encoder-rs (ONNX Runtime)",
+      "p50_ms": 8.545347999999999,
+      "p95_ms": 8.832346
     },
     {
       "workload": "SIMD Vector Dot Product (768-dim)",
       "model": "In-Memory Cortex Embedding",
       "engine": "Rust SIMD Vector Loop",
-      "p50_ms": 0.00034231,
-      "p95_ms": 0.000445003
+      "p50_ms": 0.00058396,
+      "p95_ms": 0.0007591480000000001
     }
   ],
-  "concurrency_pressure": [
-    {
-      "concurrency": 1,
-      "aien_ttft_p50_ms": 12.46,
-      "aien_ttft_p95_ms": 12.46,
-      "aien_itl_p50_ms": 7.82,
-      "aien_itl_p95_ms": 7.82,
-      "tokens_per_sec": 128000.0,
-      "ttft_speedup": 1.80,
-      "itl_speedup": 1.25,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0001
-    },
-    {
-      "concurrency": 4,
-      "aien_ttft_p50_ms": 14.46,
-      "aien_ttft_p95_ms": 14.46,
-      "aien_itl_p50_ms": 7.92,
-      "aien_itl_p95_ms": 7.92,
-      "tokens_per_sec": 512000.0,
-      "ttft_speedup": 1.55,
-      "itl_speedup": 1.24,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 8,
-      "aien_ttft_p50_ms": 17.11,
-      "aien_ttft_p95_ms": 17.11,
-      "aien_itl_p50_ms": 8.06,
-      "aien_itl_p95_ms": 8.06,
-      "tokens_per_sec": 1024000.0,
-      "ttft_speedup": 1.31,
-      "itl_speedup": 1.22,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 16,
-      "aien_ttft_p50_ms": 22.43,
-      "aien_ttft_p95_ms": 22.43,
-      "aien_itl_p50_ms": 8.35,
-      "aien_itl_p95_ms": 8.35,
-      "tokens_per_sec": 2048000.0,
-      "ttft_speedup": 1.00,
-      "itl_speedup": 1.17,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 32,
-      "aien_ttft_p50_ms": 30.77,
-      "aien_ttft_p95_ms": 30.77,
-      "aien_itl_p50_ms": 8.90,
-      "aien_itl_p95_ms": 8.90,
-      "tokens_per_sec": 2784263.7,
-      "ttft_speedup": 0.73,
-      "itl_speedup": 1.10,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 64,
-      "aien_ttft_p50_ms": 31.34,
-      "aien_ttft_p95_ms": 31.89,
-      "aien_itl_p50_ms": 10.03,
-      "aien_itl_p95_ms": 10.03,
-      "tokens_per_sec": 2984351.5,
-      "ttft_speedup": 0.71,
-      "itl_speedup": 0.98,
-      "power_watts": 10.75,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 128,
-      "aien_ttft_p50_ms": 32.45,
-      "aien_ttft_p95_ms": 34.13,
-      "aien_itl_p50_ms": 12.27,
-      "aien_itl_p95_ms": 12.27,
-      "tokens_per_sec": 3097960.3,
-      "ttft_speedup": 0.69,
-      "itl_speedup": 0.80,
-      "power_watts": 10.90,
-      "joules_per_token": 0.0000
-    },
-    {
-      "concurrency": 256,
-      "aien_ttft_p50_ms": 34.70,
-      "aien_ttft_p95_ms": 38.62,
-      "aien_itl_p50_ms": 16.75,
-      "aien_itl_p95_ms": 33.58,
-      "tokens_per_sec": 3120865.6,
-      "ttft_speedup": 0.65,
-      "itl_speedup": 0.59,
-      "power_watts": 10.90,
-      "joules_per_token": 0.0000
-    }
-  ],
-  "context_scaling": [
-    {
-      "context_length": 512,
-      "ttft_p50_ms": 13.07,
-      "prefix_cache_hit_pct": 0.0,
-      "kv_memory_mb": 3.50,
-      "scheduler_latency_us": 12.46
-    },
-    {
-      "context_length": 1024,
-      "ttft_p50_ms": 13.69,
-      "prefix_cache_hit_pct": 87.5,
-      "kv_memory_mb": 7.00,
-      "scheduler_latency_us": 13.08
-    },
-    {
-      "context_length": 2048,
-      "ttft_p50_ms": 14.92,
-      "prefix_cache_hit_pct": 87.5,
-      "kv_memory_mb": 14.00,
-      "scheduler_latency_us": 13.08
-    },
-    {
-      "context_length": 4096,
-      "ttft_p50_ms": 17.38,
-      "prefix_cache_hit_pct": 87.5,
-      "kv_memory_mb": 28.00,
-      "scheduler_latency_us": 13.08
-    },
-    {
-      "context_length": 8192,
-      "ttft_p50_ms": 22.29,
-      "prefix_cache_hit_pct": 87.5,
-      "kv_memory_mb": 56.00,
-      "scheduler_latency_us": 13.08
-    }
-  ],
-  "multi_model_breadth": [
-    {
-      "model_name": "Qwen 2.5 7B NVFP4",
-      "architectural_topology": "Dense 28 Layers (4 KV Heads)",
-      "quantization": "ModelOpt NVFP4",
-      "ttft_p50_ms": 12.46,
-      "itl_p50_ms": 7.82,
-      "kv_footprint_gb": 1.07,
-      "status": "VERIFIED"
-    },
-    {
-      "model_name": "Qwen3-8B FP4",
-      "architectural_topology": "Dense 36 Layers (8 KV Heads)",
-      "quantization": "Blackwell NVFP4",
-      "ttft_p50_ms": 13.80,
-      "itl_p50_ms": 8.15,
-      "kv_footprint_gb": 1.38,
-      "status": "VERIFIED"
-    },
-    {
-      "model_name": "Nemotron-3.5-Lightning-30B",
-      "architectural_topology": "Hybrid Mamba+MoE (128 Experts)",
-      "quantization": "BF16/NVFP4",
-      "ttft_p50_ms": 19.40,
-      "itl_p50_ms": 11.20,
-      "kv_footprint_gb": 4.60,
-      "status": "VERIFIED"
-    },
-    {
-      "model_name": "Gemma-4-26B-A4B-NVFP4",
-      "architectural_topology": "Dense 26B (16 KV Heads)",
-      "quantization": "NVFP4",
-      "ttft_p50_ms": 18.20,
-      "itl_p50_ms": 10.45,
-      "kv_footprint_gb": 3.95,
-      "status": "VERIFIED"
-    },
-    {
-      "model_name": "Llama-3.2-1B-Instruct",
-      "architectural_topology": "Edge Dense 16 Layers (8 Heads)",
-      "quantization": "GGUF/FP16",
-      "ttft_p50_ms": 5.20,
-      "itl_p50_ms": 3.40,
-      "kv_footprint_gb": 0.24,
-      "status": "VERIFIED"
-    }
-  ],
-  "cross_surface": [
-    {
-      "surface": "NVIDIA DGX Spark (GB10)",
-      "processor": "Grace Blackwell (GB10, aarch64, 121 GB)",
-      "execution_pipeline": "Hardware NVFP4 Tensor Cores + Unified Memory",
-      "status": "ACTIVE_PRODUCTION"
-    },
-    {
-      "surface": "Apple Silicon (macOS)",
-      "processor": "Apple M-Series (aarch64, Unified Memory)",
-      "execution_pipeline": "Paged POSIX mmap KV Pools + SIMD CPU Kernels",
-      "status": "VERIFIED_CROSS_PLATFORM"
-    },
-    {
-      "surface": "Generic Linux CPU",
-      "processor": "POSIX Linux x86_64 / aarch64",
-      "execution_pipeline": "POSIX CoW Virtual Tables + Tokio Async Serving",
-      "status": "VERIFIED_CROSS_PLATFORM"
-    }
-  ]
+  "concurrency_pressure": [],
+  "context_scaling": [],
+  "multi_model_breadth": [],
+  "cross_surface": []
 }

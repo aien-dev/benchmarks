@@ -306,7 +306,7 @@ fn main() {
                 let updated = sync_markdown_content(&content, &table);
 
                 if updated != content {
-                    if *check {
+                    if check {
                         eprintln!("Benchmark table out of date in: {}", t);
                         mismatch = true;
                     } else {

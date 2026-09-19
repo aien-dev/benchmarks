@@ -144,6 +144,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
                 let speedup_status = py_bench_status.p50_ms / rust_bench_status.p50_ms.max(0.001);
                 let reduction_status = (1.0 - (rust_rss / py_rss.max(0.001))) * 100.0;
                 like_for_like.push(LikeForLikeMetric {
+                    measurement_id: Some("BENCH-LIVE-LFL-STATUS-001".to_string()),
                     category: "HTTP Microservice".to_string(),
                     workload: "Minimal JSON Status Ping (/api/status)".to_string(),
                     rust_engine: "Rust Standalone (Native Compiled)".to_string(),
@@ -161,6 +162,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
                 // 2. Query Like-for-Like
                 let speedup_query = py_bench_query.p50_ms / rust_bench_query.p50_ms.max(0.001);
                 like_for_like.push(LikeForLikeMetric {
+                    measurement_id: Some("BENCH-LIVE-LFL-QUERY-001".to_string()),
                     category: "Database & Serialization".to_string(),
                     workload: "Single Entity Query & JSON Serialization (/api/query)".to_string(),
                     rust_engine: "Rust Standalone (Native Compiled)".to_string(),
@@ -178,6 +180,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
                 // 3. Vector Dot Product Like-for-Like
                 let speedup_vec = py_bench_vector.p50_ms / rust_bench_vector.p50_ms.max(0.001);
                 like_for_like.push(LikeForLikeMetric {
+                    measurement_id: Some("BENCH-LIVE-LFL-VEC-001".to_string()),
                     category: "Vector & SIMD Compute".to_string(),
                     workload: "768-dimensional Vector Dot Product (/api/vector)".to_string(),
                     rust_engine: "Rust SIMD Vector Loop".to_string(),
@@ -194,6 +197,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
 
                 // Add real python baseline to latency_concurrency for direct apples-to-apples comparison
                 latency_concurrency.push(LatencyMetric {
+                    measurement_id: Some("BENCH-LIVE-FASTAPI-PING-001".to_string()),
                     service: "python-fastapi-baseline".to_string(),
                     endpoint: "/api/status".to_string(),
                     description: "Python FastAPI Baseline Ping".to_string(),
@@ -234,6 +238,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
     // Baseline memory for comparisons (use measured Python baseline if available, else 40.0 MB default)
     let baseline_rss = py_rss_measured.unwrap_or(40.0);
     memory_rss.push(MemoryMetric {
+        measurement_id: Some("BENCH-LIVE-FASTAPI-RSS-001".to_string()),
         service: "python-fastapi-baseline".to_string(),
         role: "Python Microservice Baseline".to_string(),
         architecture: "Python 3.12 + FastAPI + Uvicorn".to_string(),
@@ -250,6 +255,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         if let Some(openclaw_pid) = memory::find_pid_by_pattern("openclaw-rs") {
             if let Some(openclaw_rss) = memory::read_process_rss_mb(openclaw_pid) {
                 memory_rss.push(MemoryMetric {
+                    measurement_id: Some("BENCH-LIVE-OPENCLAW-RSS-001".to_string()),
                     service: "openclaw-rs".to_string(),
                     role: "Sovereign Gateway & Heartbeat".to_string(),
                     architecture: "Native Rust (Grace Blackwell)".to_string(),
@@ -264,6 +270,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         if let Some(cortex_pid) = memory::find_pid_by_pattern("cortex-rs") {
             if let Some(cortex_rss) = memory::read_process_rss_mb(cortex_pid) {
                 memory_rss.push(MemoryMetric {
+                    measurement_id: Some("BENCH-LIVE-CORTEX-RSS-001".to_string()),
                     service: "cortex-rs".to_string(),
                     role: "Canonical Memory Engine".to_string(),
                     architecture: "Native Rust + SQLite WAL".to_string(),
@@ -278,6 +285,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         if let Some(cockpit_pid) = memory::find_pid_by_pattern("spark-cockpit-rs") {
             if let Some(cockpit_rss) = memory::read_process_rss_mb(cockpit_pid) {
                 memory_rss.push(MemoryMetric {
+                    measurement_id: Some("BENCH-LIVE-COCKPIT-RSS-001".to_string()),
                     service: "spark-cockpit-rs".to_string(),
                     role: "Real-time Telemetry Cockpit".to_string(),
                     architecture: "Native Rust + Axum".to_string(),
@@ -292,6 +300,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         if let Some(encoder_pid) = memory::find_pid_by_pattern("cortex-encoder-rs") {
             if let Some(encoder_rss) = memory::read_process_rss_mb(encoder_pid) {
                 memory_rss.push(MemoryMetric {
+                    measurement_id: Some("BENCH-LIVE-ENCODER-RSS-001".to_string()),
                     service: "cortex-encoder-rs".to_string(),
                     role: "Neural Embedding Microservice".to_string(),
                     architecture: "Rust + ONNX Runtime (BGE-M3)".to_string(),
@@ -313,6 +322,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
             config.warmup as usize,
         ) {
             latency_concurrency.push(LatencyMetric {
+                measurement_id: Some("BENCH-LIVE-CORTEX-GET-001".to_string()),
                 service: "cortex-rs".to_string(),
                 endpoint: "/api/cortex/get".to_string(),
                 description: "Cortex Canonical Retrieval".to_string(),
@@ -336,6 +346,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
             config.warmup as usize,
         ) {
             latency_concurrency.push(LatencyMetric {
+                measurement_id: Some("BENCH-LIVE-PULSE-001".to_string()),
                 service: "spark-cockpit-rs".to_string(),
                 endpoint: "/api/pulse".to_string(),
                 description: "Real-time System Pulse".to_string(),
@@ -359,6 +370,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
             config.warmup as usize,
         ) {
             latency_concurrency.push(LatencyMetric {
+                measurement_id: Some("BENCH-LIVE-ENCODER-HEALTH-001".to_string()),
                 service: "cortex-encoder-rs".to_string(),
                 endpoint: "/health".to_string(),
                 description: "ONNX Runtime Service Health".to_string(),
@@ -383,6 +395,7 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         simd_bench.elapsed_ms, simd_bench.operations_per_sec, simd_bench.p50_latency_us
     );
     neural_inference.push(NeuralMetric {
+        measurement_id: Some("BENCH-LIVE-SIMD-DOT-001".to_string()),
         workload: "SIMD Vector Dot Product (768-dim)".to_string(),
         model: "In-Memory Cortex Embedding".to_string(),
         engine: "Rust SIMD Vector Loop".to_string(),
@@ -405,6 +418,9 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
     Ok(BenchmarkData {
         benchmark_suite: "AIEN Sovereign Systems Performance Benchmark Suite".to_string(),
         version: "0.2.0".to_string(),
+        schema_version: Some("1.0.0".to_string()),
+        benchmark_commit: None,
+        core_commit: None,
         timestamp,
         hardware,
         environment,

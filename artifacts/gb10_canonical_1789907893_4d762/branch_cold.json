@@ -1,0 +1,9 @@
+{
+  "prefix_tokens": 32768,
+  "cold_fork_to_first_token_ms": 0.013040000000000001,
+  "naive_full_recompute_ms_est": 32.0,
+  "naive_full_copy_ms_est": 3.69,
+  "speedup_vs_recompute": 2453.9877300613493,
+  "speedup_vs_copy": 282.97546012269936,
+  "physical_cow_pages_allocated": 1
+}

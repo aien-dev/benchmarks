@@ -1,3 +1,4 @@
+pub mod smaps;
 pub mod http_bench;
 pub mod inference_bench;
 pub mod memory;

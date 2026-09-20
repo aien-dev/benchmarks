@@ -210,10 +210,6 @@ async fn verify_engine_model(
                     if id.contains(rev_short) || id.contains(expected_revision) {
                         rev_matched = true;
                     }
-                    // If the server exposes neither root nor revision fields, treat ID match as confirmed
-                    if !rev_matched && m.get("root").is_none() && m.get("revision").is_none() {
-                        rev_matched = true;
-                    }
                     break;
                 }
             }
@@ -224,7 +220,7 @@ async fn verify_engine_model(
         Ok(())
     } else if found {
         Err(format!(
-            "Model {} found at {}, but revision did not match pinned revision {}",
+            "Model {} found at {}, but pinned revision {} could not be verified (server response did not contain matching revision or path)",
             expected_model, endpoint, expected_revision
         ))
     } else {
@@ -402,30 +398,19 @@ async fn execute_single_branch(
         .or(branch.expected_full_tokens.as_ref())
     {
         if !exp.is_empty() && !generated_token_ids.is_empty() {
-            let n = exp.len().min(generated_token_ids.len());
-            Some(&generated_token_ids[..n] == &exp[..n])
+            Some(&generated_token_ids == *exp)
         } else {
             None
         }
     } else if let Some(ref exp_16) = branch.expected_first_16_tokens {
-        if !exp_16.is_empty() && !generated_token_ids.is_empty() {
-            let n = exp_16.len().min(generated_token_ids.len());
-            Some(&generated_token_ids[..n] == &exp_16[..n])
+        if !exp_16.is_empty() && generated_token_ids.len() >= exp_16.len() {
+            Some(&generated_token_ids[..exp_16.len()] == &exp_16[..])
         } else {
-            None
+            Some(false)
         }
     } else if let Some(ref exp_hash) = branch.expected_output_hash {
-        if !exp_hash.is_empty() {
-            if !generated_token_ids.is_empty() {
-                Some(hash_tokens(&generated_token_ids) == *exp_hash)
-            } else if !generated_text.is_empty() {
-                let mut hasher = Sha256::new();
-                hasher.update(generated_text.as_bytes());
-                let hex = format!("{:x}", hasher.finalize());
-                Some(hex == *exp_hash)
-            } else {
-                Some(false)
-            }
+        if !exp_hash.is_empty() && !generated_token_ids.is_empty() {
+            Some(hash_tokens(&generated_token_ids) == *exp_hash)
         } else {
             None
         }
@@ -433,7 +418,7 @@ async fn execute_single_branch(
         if !generated_token_ids.is_empty() {
             Some(generated_token_ids[0] == exp_first)
         } else {
-            None
+            Some(false)
         }
     } else if let Some(ref exp_text) = branch.expected_output_text {
         if !exp_text.is_empty() && !generated_text.is_empty() {
@@ -545,7 +530,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 let pss_mb_before = args
                     .engine_pid
-                    .and_then(aien_benchmarks::harness::smaps::read_smaps_rollup)
+                    .and_then(aien_benchmarks::harness::smaps::read_process_tree_smaps)
                     .map(|s| s.pss_mb());
 
                 // Start continuous 50ms memory sampler
@@ -560,7 +545,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     while !mon_stop.load(Ordering::Relaxed) {
                         if let Some(p) = mon_pid {
-                            if let Some(snap) = aien_benchmarks::harness::smaps::read_smaps_rollup(p) {
+                            if let Some(snap) = aien_benchmarks::harness::smaps::read_process_tree_smaps(p) {
                                 if snap.pss_mb() > peak_pss {
                                     peak_pss = snap.pss_mb();
                                 }

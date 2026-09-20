@@ -1,0 +1,16 @@
+{
+  "prefix_tokens": 32768,
+  "num_branches": 500,
+  "fork_latency_us_p50": 2.064,
+  "fork_latency_us_p90": 3.184,
+  "fork_latency_us_p99": 5.856,
+  "total_fork_time_ms": 1.202199,
+  "physical_shared_blocks": 2048,
+  "physical_memory_mb": 704.0,
+  "naive_copy_memory_mb": 352000.0,
+  "memory_savings_ratio": 500.0,
+  "decode_throughput_tok_per_sec": 415904.52163077827,
+  "cow_mutation_latency_ns": 13297.0,
+  "rss_mb": 11529.20703125,
+  "pss_mb": 11523.759765625
+}

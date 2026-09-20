@@ -1,0 +1,17 @@
+{
+  "run_id": "gb10_canonical_1789907893_4d762",
+  "timestamp_utc": "2026-09-20T12:38:13.304292466+00:00",
+  "runtime_git_sha": "7bf8a7d4e3bd9f271485d2703ec90378437f9bc6",
+  "benchmarks_git_sha": "dfd5ea9d14230e462de32cf96908a202a1c7983d",
+  "hardware": {
+    "platform": "NVIDIA DGX Spark Grace Blackwell GB10",
+    "cpu_architecture": "aarch64 Neoverse V2",
+    "cpu_cores": 72,
+    "unified_memory_bytes": 137438953472,
+    "interconnect": "NVLink-C2C 900 GB/s bidirectional",
+    "gpu_device": "NVIDIA GB10 sm_121",
+    "gpu_driver": "580.173.02",
+    "cuda_version": "13.0",
+    "os_kernel": "Linux spark-b87b 7.0.0-1019-nvidia #19~24.04.2-Ubuntu SMP PREEMPT_DYNAMIC Sun Sep  6 18:35:11 UTC 2 aarch64 aarch64 aarch64 GNU/Linux"
+  }
+}

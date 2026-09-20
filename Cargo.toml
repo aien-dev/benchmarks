@@ -15,6 +15,12 @@ reqwest = { version = "0.12", features = ["json", "stream"] }
 futures = "0.3"
 chrono = { version = "0.4", features = ["serde"] }
 sha2 = "0.10"
+aien-platform = { path = "../canonical-branch-native-runtime/crates/aien-platform" }
+aien-platform-linux = { path = "../canonical-branch-native-runtime/crates/aien-platform-linux" }
+aien-kv-cache = { path = "../canonical-branch-native-runtime/crates/aien-kv-cache" }
+aien-scheduler = { path = "../canonical-branch-native-runtime/crates/aien-scheduler" }
+aien-inference-abi = { path = "../canonical-branch-native-runtime/crates/aien-inference-abi" }
+parking_lot = "0.12"
 
 [[bin]]
 name = "aien-benchmarks"
@@ -23,3 +29,7 @@ path = "src/main.rs"
 [[bin]]
 name = "bench_branching_neutral"
 path = "src/bin/bench_branching_neutral.rs"
+
+[[bin]]
+name = "bench_canonical_suite"
+path = "src/bin/bench_canonical_suite.rs"

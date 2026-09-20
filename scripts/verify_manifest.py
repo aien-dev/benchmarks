@@ -105,7 +105,10 @@ def main():
         sys.exit(1)
 
     verified_shards = 0
-    if not args.skip_weight_hashes and model_dir.exists():
+    if not args.skip_weight_hashes:
+        if not model_dir.exists():
+            print(f"Error: Model directory {model_dir} does not exist for physical shard verification.", file=sys.stderr)
+            sys.exit(1)
         print(f"Physically verifying on-disk safetensors hashes in {model_dir}...")
         for shard_name, expected_hash in weight_hashes.items():
             shard_path = model_dir / shard_name
@@ -118,8 +121,9 @@ def main():
                 sys.exit(1)
             print(f"  ✓ {shard_name}: {actual_hash[:16]}... matched")
             verified_shards += 1
-    elif not model_dir.exists():
-        print(f"Warning: Model directory {model_dir} not found. Skipped physical on-disk file hashing.")
+        if verified_shards != len(weight_hashes):
+            print(f"Error: Expected {len(weight_hashes)} verified shards, got {verified_shards}", file=sys.stderr)
+            sys.exit(1)
 
     print(f"✓ Manifest integrity verified: {manifest_path}")
     print(f"  Model: {data['model_id']} (rev {data['model_revision'][:8]})")

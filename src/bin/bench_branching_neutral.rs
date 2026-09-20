@@ -7,6 +7,7 @@ use clap::Parser;
 use futures::StreamExt;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::PathBuf;
@@ -82,8 +83,18 @@ struct BranchSpec {
     text: String,
     token_ids: Vec<u32>,
     token_count: usize,
+    #[serde(default)]
+    expected_first_token: Option<u32>,
+    #[serde(default)]
+    expected_first_16_tokens: Option<Vec<u32>>,
+    #[serde(default)]
+    expected_full_tokens: Option<Vec<u32>>,
+    #[serde(default)]
     expected_output_tokens: Option<Vec<u32>>,
+    #[serde(default)]
     expected_output_hash: Option<String>,
+    #[serde(default)]
+    expected_output_text: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -124,6 +135,14 @@ struct TrialSummary {
     min_mem_available_mb: Option<f64>,
 }
 
+fn hash_tokens(token_ids: &[u32]) -> String {
+    let mut hasher = Sha256::new();
+    for &tid in token_ids {
+        hasher.update(tid.to_le_bytes());
+    }
+    format!("{:x}", hasher.finalize())
+}
+
 fn calculate_percentile(values: &mut [f64], pct: f64) -> f64 {
     if values.is_empty() {
         return 0.0;
@@ -146,8 +165,13 @@ fn read_system_mem_available_kb() -> Option<u64> {
     None
 }
 
-async fn verify_engine_model(client: &Client, url: &str, expected_model: &str) -> Result<(), String> {
-    let endpoint = format!("{}/models", url.trim_end_matches('/'));
+async fn verify_engine_model(
+    client: &Client,
+    url: &str,
+    expected_model: &str,
+    expected_revision: &str,
+) -> Result<(), String> {
+    let endpoint = format!("{}/models", url.trim_end_matches("/"));
     let res = client
         .get(&endpoint)
         .timeout(Duration::from_secs(5))
@@ -165,22 +189,47 @@ async fn verify_engine_model(client: &Client, url: &str, expected_model: &str) -
         .map_err(|e| format!("Failed to parse /v1/models JSON: {}", e))?;
 
     let mut found = false;
+    let mut rev_matched = false;
+    let rev_short = &expected_revision[..expected_revision.len().min(8)];
+
     if let Some(data) = body.get("data").and_then(|d| d.as_array()) {
         for m in data {
             if let Some(id) = m.get("id").and_then(|i| i.as_str()) {
                 if id.contains(expected_model) || expected_model.contains(id) {
                     found = true;
+                    if let Some(root) = m.get("root").and_then(|r| r.as_str()) {
+                        if root.contains(rev_short) || root.contains(expected_revision) {
+                            rev_matched = true;
+                        }
+                    }
+                    if let Some(rev) = m.get("revision").and_then(|r| r.as_str()) {
+                        if rev.contains(rev_short) || rev.contains(expected_revision) {
+                            rev_matched = true;
+                        }
+                    }
+                    if id.contains(rev_short) || id.contains(expected_revision) {
+                        rev_matched = true;
+                    }
+                    // If the server exposes neither root nor revision fields, treat ID match as confirmed
+                    if !rev_matched && m.get("root").is_none() && m.get("revision").is_none() {
+                        rev_matched = true;
+                    }
                     break;
                 }
             }
         }
     }
 
-    if found {
+    if found && rev_matched {
         Ok(())
+    } else if found {
+        Err(format!(
+            "Model {} found at {}, but revision did not match pinned revision {}",
+            expected_model, endpoint, expected_revision
+        ))
     } else {
         Err(format!(
-            "Model '{}' not found in active engine models list at {}",
+            "Model {} not found in active engine models list at {}",
             expected_model, endpoint
         ))
     }
@@ -214,7 +263,7 @@ async fn execute_single_branch(
     });
 
     let req = client
-        .post(format!("{}/completions", url.trim_end_matches('/')))
+        .post(format!("{}/completions", url.trim_end_matches("/")))
         .header("Content-Type", "application/json")
         .json(&payload);
 
@@ -264,19 +313,23 @@ async fn execute_single_branch(
     let mut last_token_time: Option<Instant> = None;
     let mut itls: Vec<f64> = Vec::new();
     let mut tokens_count = 0;
+    let mut generated_text = String::new();
+    let mut generated_token_ids: Vec<u32> = Vec::new();
+    let mut line_buffer = String::new();
 
     while let Some(item) = stream.next().await {
         match item {
             Ok(bytes) => {
-                let text = String::from_utf8_lossy(&bytes);
-                for line in text.lines() {
-                    let line = line.trim();
+                line_buffer.push_str(&String::from_utf8_lossy(&bytes));
+                while let Some(newline_pos) = line_buffer.find('\n') {
+                    let line = line_buffer[..newline_pos].trim().to_string();
+                    line_buffer.drain(..=newline_pos);
+
                     if line.starts_with("data:") {
                         let data = line.trim_start_matches("data:").trim();
                         if data == "[DONE]" {
                             break;
                         }
-                        // Validate SSE JSON chunk
                         if let Ok(val) = serde_json::from_str::<serde_json::Value>(data) {
                             let now = Instant::now();
                             if first_token_time.is_none() {
@@ -288,8 +341,23 @@ async fn execute_single_branch(
                             last_token_time = Some(now);
 
                             if let Some(choices) = val.get("choices").and_then(|c| c.as_array()) {
-                                if !choices.is_empty() {
-                                    tokens_count += 1;
+                                if let Some(choice) = choices.first() {
+                                    if let Some(text_delta) = choice.get("text").and_then(|t| t.as_str()) {
+                                        generated_text.push_str(text_delta);
+                                    }
+                                    if let Some(tid) = choice.get("token_id").and_then(|t| t.as_u64()) {
+                                        generated_token_ids.push(tid as u32);
+                                        tokens_count += 1;
+                                    } else if let Some(tids) = choice.get("token_ids").and_then(|t| t.as_array()) {
+                                        for t in tids {
+                                            if let Some(id) = t.as_u64() {
+                                                generated_token_ids.push(id as u32);
+                                                tokens_count += 1;
+                                            }
+                                        }
+                                    } else {
+                                        tokens_count += 1;
+                                    }
                                 }
                             }
                         }
@@ -328,6 +396,55 @@ async fn execute_single_branch(
         0.0
     };
 
+    let oracle_match = if let Some(ref exp) = branch
+        .expected_output_tokens
+        .as_ref()
+        .or(branch.expected_full_tokens.as_ref())
+    {
+        if !exp.is_empty() && !generated_token_ids.is_empty() {
+            let n = exp.len().min(generated_token_ids.len());
+            Some(&generated_token_ids[..n] == &exp[..n])
+        } else {
+            None
+        }
+    } else if let Some(ref exp_16) = branch.expected_first_16_tokens {
+        if !exp_16.is_empty() && !generated_token_ids.is_empty() {
+            let n = exp_16.len().min(generated_token_ids.len());
+            Some(&generated_token_ids[..n] == &exp_16[..n])
+        } else {
+            None
+        }
+    } else if let Some(ref exp_hash) = branch.expected_output_hash {
+        if !exp_hash.is_empty() {
+            if !generated_token_ids.is_empty() {
+                Some(hash_tokens(&generated_token_ids) == *exp_hash)
+            } else if !generated_text.is_empty() {
+                let mut hasher = Sha256::new();
+                hasher.update(generated_text.as_bytes());
+                let hex = format!("{:x}", hasher.finalize());
+                Some(hex == *exp_hash)
+            } else {
+                Some(false)
+            }
+        } else {
+            None
+        }
+    } else if let Some(exp_first) = branch.expected_first_token {
+        if !generated_token_ids.is_empty() {
+            Some(generated_token_ids[0] == exp_first)
+        } else {
+            None
+        }
+    } else if let Some(ref exp_text) = branch.expected_output_text {
+        if !exp_text.is_empty() && !generated_text.is_empty() {
+            Some(generated_text.trim() == exp_text.trim())
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
     BranchTrialResult {
         branch_id: branch.branch_id,
         category: branch.category,
@@ -340,7 +457,7 @@ async fn execute_single_branch(
         tokens_generated: tokens_count,
         tok_per_sec,
         success: true,
-        oracle_match: Some(true),
+        oracle_match,
         error: None,
     }
 }
@@ -393,12 +510,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
 
         if args.verify_model_id {
-            print!("Verifying model '{}' on engine {} at {}... ", manifest.model_id, engine, engine_url);
-            match verify_engine_model(&client, &engine_url, &manifest.model_id).await {
+            print!(
+                "Verifying model {} (rev {}) on engine {} at {}... ",
+                manifest.model_id,
+                &manifest.model_revision[..8],
+                engine,
+                engine_url
+            );
+            match verify_engine_model(&client, &engine_url, &manifest.model_id, &manifest.model_revision).await {
                 Ok(_) => println!("verified."),
                 Err(e) => {
                     eprintln!("FAILED: {}", e);
-                    eprintln!("Skipping engine {} due to model revision mismatch.", engine);
+                    eprintln!("Skipping engine {} due to model verification failure.", engine);
                     continue;
                 }
             }
@@ -560,10 +683,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 };
 
                 println!(
-                    "  -> Completed: {}/{}, 32K Prefix, p95 TTFT: {:.2}ms, p50 ITL: {:.2}ms, Agg Throughput: {:.2} tok/s, Peak PSS: {:.1}MB",
-                    summary.completed_branches,
+                    "  -> Completed: {}/{}, TTFT p50: {:.2}ms, ITL p50: {:.2}ms, Agg tok/s: {:.2}, Peak PSS: {:.2} MB",
+                    completed,
                     n_branches,
-                    summary.ttft_p95_ms,
+                    summary.ttft_p50_ms,
                     summary.itl_p50_ms,
                     summary.aggregate_tokens_per_sec,
                     summary.pss_mb_peak.unwrap_or(0.0)
@@ -575,9 +698,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let summary_path = args.output_dir.join("summary.json");
-    let summary_file = File::create(&summary_path)?;
-    serde_json::to_writer_pretty(summary_file, &all_summaries)?;
-    println!("Benchmark completed. Summary written to {}", summary_path.display());
+    let mut file = File::create(&summary_path)?;
+    writeln!(file, "{}", serde_json::to_string_pretty(&all_summaries)?)?;
+    println!("Benchmark run complete. Summary saved to {}", summary_path.display());
 
     Ok(())
 }

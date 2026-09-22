@@ -24,7 +24,7 @@ Empirical performance measurements, active measurement harnesses, and comparativ
 
 The AIEN architecture enforces a strict Native Systems Priority: zero Python or Node interpreters across core services, gateways, or background daemons. Core agent services run as pure compiled native Rust binaries with in-memory TPM-bound key resolution.
 
-1. **Memory Reduction**: Native Rust daemons reduce resident set size (RSS) by **58.3% to 89.8%** compared to a clean CPython 3.12 + FastAPI + Uvicorn baseline. `openclaw-rs` maintains an autonomous heartbeat loop within **4.56 MB** RSS.
+1. **Memory Reduction**: Native Rust daemons reduce resident set size (RSS) by **58.3% to 89.8%** compared to a clean CPython 3.12 + FastAPI + Uvicorn baseline. `aegis-runtime` maintains an autonomous heartbeat loop within **4.56 MB** RSS.
 2. **Gateway Latency & Throughput**: Axum microservices deliver **sub-millisecond p50 TTFB (0.26ms to 0.50ms)** at **19,000 to 34,000 requests/second** under concurrent load (concurrency=10, 500 requests per endpoint).
 3. **Like-for-Like Microservice Speedup**: When executing identical JSON serialization, SQLite WAL queries, and 768-dimensional vector dot products, native Rust delivers a **3.7x to 10.1x latency reduction** and a **94.2% memory reduction** compared to CPython 3.12 + FastAPI.
 4. **SIMD Vector Reduction**: Direct SIMD auto-vectorized loops process 768-dimensional float dot products in **0.58 microseconds** per operation (over 1.7 million vector comparisons per second).
@@ -56,7 +56,7 @@ Measured directly from `/proc/[pid]/status` (`VmRSS`) under steady state on live
 
 | Service | Architecture | Role | Memory RSS | Footprint Delta vs Python Baseline |
 | :--- | :--- | :--- | :--- | :--- |
-| **openclaw-rs** | Native Rust (Axum + SQLite) | Autonomous Agent Runtime | **4.56 MB** | **-89.81%** |
+| **aegis-runtime** | Native Rust (Axum + SQLite) | Autonomous Agent Runtime | **4.56 MB** | **-89.81%** |
 | **spark-cockpit-rs** | Native Rust (Axum) | Health & Telemetry Gateway | **12.90 MB** | **-71.18%** |
 | **cortex-rs** | Native Rust (Axum + SQLite WAL) | Knowledge Graph Engine | **18.66 MB** | **-58.30%** |
 | **cortex-encoder-rs** | Native Rust (ONNX INT8) | Local Vector Embedding | **777.43 MB** | Model Weights Heap |

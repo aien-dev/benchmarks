@@ -7,4 +7,4 @@ This repository maintains a clean disk state. API keys, hardware tokens, and cre
 ## Reporting Vulnerabilities
 
 To report a vulnerability or telemetry leak, contact:
-`drake.aien@proton.me`
+`aien@aienos.com`

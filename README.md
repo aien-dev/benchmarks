@@ -1,11 +1,11 @@
 # AIEN Sovereign Systems Performance Benchmarks
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Verification](https://img.shields.io/badge/Verification-100%25%20Passing-7fb8a6.svg)](https://github.com/aien-dev/benchmarks)
-[![Architecture: Native Rust](https://img.shields.io/badge/Architecture-Native%20Rust-ef8b67.svg)](https://github.com/aien-dev/benchmarks)
-[![Reproducibility: One-Command](https://img.shields.io/badge/Harness-Active%20Measurement-d3a85b.svg)](https://github.com/aien-dev/benchmarks)
 
 Empirical performance measurements, active measurement harnesses, and comparative telemetry for the **AIEN Sovereign Agent Architecture** running on the **NVIDIA DGX Spark** (Grace Blackwell GB10, aarch64).
+
+
+> **Status (23 September 2026):** figures in this README predate the evidence standard adopted in [aien-sovereign-core](https://github.com/aien-dev/aien-sovereign-core#measured-results) and are being regenerated. A figure is current only when its artifact bundle carries commit identity, hardware and environment record, exact command, raw samples, SHA-256 digests, measurement definition, and reproducibility steps. The raw files in `data/` are kept as recorded, including service names from before the openclaw-rs to aegis-runtime rename.
 
 ---
 
@@ -13,7 +13,7 @@ Empirical performance measurements, active measurement harnesses, and comparativ
 
 - **Workstation**: NVIDIA DGX Spark (`spark-b87b`)
 - **Processor**: NVIDIA Grace Blackwell (GB10, aarch64)
-- **Memory**: 121 GB Unified LPDDR5X (Unified CPU/GPU Physical Memory)
+- **Memory**: 128 GB Unified LPDDR5X installed, about 121 GiB visible to the OS (Unified CPU/GPU Physical Memory)
 - **Host Kernel**: Linux 7.0.0-1019-nvidia (4 KB page size)
 - **Compilers**: rustc 1.98.1 (48a229cea 2026-09-01), CPython 3.12.3
 - **SIMD / Vector Width**: 128-bit NEON / SVE vector extensions
@@ -74,12 +74,14 @@ Multi-threaded concurrency sweep (concurrency=10, 500 requests per endpoint on l
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **cortex-encoder-rs `/health`** | Rust Axum + ONNX Runtime | **34,684.6 req/s** | **0.26 ms** | 0.35 ms | 0.52 ms |
 | **cortex-rs `/api/cortex/get`** | Rust Axum + SQLite WAL | **19,366.6 req/s** | **0.50 ms** | 0.65 ms | 0.88 ms |
-| **spark-cockpit-rs `/api/pulse`** | Rust Axum | **5,840.2 req/s** | **1.63 ms** | 2.44 ms | 4.82 ms |
+| **spark-cockpit-rs `/api/pulse`** | Rust Axum | **5,840.2 req/s** | **1.63 ms** | 2.44 ms | 2.86 ms |
 | **python-fastapi-baseline `/api/status`** | CPython 3.12 + Uvicorn | 7,251.6 req/s | 1.28 ms | 1.88 ms | 2.65 ms |
 
 ---
 
 ### 4. Local Neural Inference & SIMD Acceleration
+
+TTFT rows come from single-sample runs, so their p50 and p95 are the same value and do not describe a distribution.
 
 Measured against live Modular MAX and ONNX serving instances on Grace Blackwell silicon:
 

@@ -264,8 +264,8 @@ fn main() {
         Commands::Verify => {
             let data = load_data(&cli.input);
             for m in &data.memory_rss {
-                if m.service == "openclaw-rs" {
-                    assert!(m.rss_mb < 10.0, "openclaw-rs RSS exceeded 10MB budget");
+                if m.service == "openclaw-rs" || m.service == "aegis-runtime" {
+                    assert!(m.rss_mb < 10.0, "{} RSS exceeded 10MB budget", m.service);
                 }
                 if m.service == "cortex-rs" {
                     assert!(m.rss_mb < 25.0, "cortex-rs RSS exceeded 25MB budget");

@@ -252,17 +252,17 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
     if !config.skip_live {
         println!("  [3/4] Inspecting active sovereign background services...");
 
-        // openclaw-rs
-        if let Some(openclaw_pid) = memory::find_pid_by_pattern("openclaw-rs") {
-            if let Some(openclaw_rss) = memory::read_process_rss_mb(openclaw_pid) {
+        // aegis-runtime
+        if let Some(aegis_pid) = memory::find_pid_by_pattern("aegis") {
+            if let Some(aegis_rss) = memory::read_process_rss_mb(aegis_pid) {
                 memory_rss.push(MemoryMetric {
-                    measurement_id: Some("BENCH-LIVE-OPENCLAW-RSS-001".to_string()),
-                    service: "openclaw-rs".to_string(),
+                    measurement_id: Some("BENCH-LIVE-AEGIS-RSS-001".to_string()),
+                    service: "aegis-runtime".to_string(),
                     role: "Sovereign Gateway & Heartbeat".to_string(),
                     architecture: "Native Rust (Grace Blackwell)".to_string(),
-                    rss_mb: openclaw_rss,
+                    rss_mb: aegis_rss,
                     baseline_rss_mb: baseline_rss,
-                    reduction_pct: (1.0 - (openclaw_rss / baseline_rss)) * 100.0,
+                    reduction_pct: (1.0 - (aegis_rss / baseline_rss)) * 100.0,
                 });
             }
         }

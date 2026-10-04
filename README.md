@@ -1,6 +1,6 @@
 # AIEN Sovereign Systems Performance Benchmarks
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: AGPL-3.0-or-later](https://img.shields.io/badge/License-AGPL--3.0--or--later-blue.svg)](LICENSE)
 
 Empirical performance measurements, active measurement harnesses, and comparative telemetry for the **AIEN Sovereign Agent Architecture** running on the **NVIDIA DGX Spark** (Grace Blackwell GB10, aarch64).
 
@@ -215,9 +215,9 @@ cargo test --verbose
 
 ## License and Governance
 
-Licensed under the [Apache License, Version 2.0](LICENSE).
+Licensed under the GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later). See [LICENSE](LICENSE).
 Copyright (c) 2026 Drake Stapleton and AIEN Contributors. See [NOTICE](NOTICE) for attribution.
 
-- **Benchmark Code & Harness**: Standard [Apache License 2.0](LICENSE) for universal execution, replication, and integration.
+- **Benchmark Code & Harness**: Standard [GNU AGPL-3.0-or-later](LICENSE) for universal execution, replication, and integration.
 - **Benchmark Data & Metrics**: Raw telemetry JSON, hardware timing records, and SVG comparison charts are dedicated to the public domain under [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - **Upstream Development Charter**: [CONSTITUTION.md](CONSTITUTION.md) defines the internal architectural doctrine and stewardship standards for upstream development and does not bind downstream users.

@@ -168,7 +168,7 @@ fn audit_fake(stale: bool) -> Fake {
         all.extend(b);
     }
     Fake {
-        line: Some(line("aien-fake", 3, 0.2)),
+        line: None,
         report: Some(report("aien-fake", 3, 0.2, "audit")),
         bitmap: Some(all),
         code: 0,
@@ -317,4 +317,11 @@ fn run_failure_keeps_evidence_and_no_stats() {
     assert!(v["summary"].is_null());
     assert!(fs::read_dir(ev.join("blobs")).unwrap().count() > 0);
     let _ = fs::remove_dir_all(&ev);
+}
+
+#[test]
+fn audit_rejects_stdout_line() {
+    let mut f = audit_fake(false);
+    f.line = Some(line("aien-fake", 3, 0.2));
+    assert_eq!(kind(check(&f, Some(3))), "audit_stdout_line");
 }

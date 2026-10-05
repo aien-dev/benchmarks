@@ -68,6 +68,7 @@ pub enum Reject {
     Spawn(String),
     ExitCode(Option<i32>),
     NoStdoutLine,
+    AuditStdoutLine,
     MultipleStdoutLines(usize),
     MalformedLine(String),
     ReportMissing,
@@ -90,6 +91,7 @@ impl Reject {
             Reject::Spawn(_) => "spawn_error",
             Reject::ExitCode(_) => "exit_code",
             Reject::NoStdoutLine => "no_stdout_line",
+            Reject::AuditStdoutLine => "audit_stdout_line",
             Reject::MultipleStdoutLines(_) => "multiple_stdout_lines",
             Reject::MalformedLine(_) => "malformed_line",
             Reject::ReportMissing => "report_missing",
@@ -116,6 +118,7 @@ impl std::fmt::Display for Reject {
             | Reject::LineReportMismatch(e) | Reject::StatusNotComplete(e) => write!(f, "{e}"),
             Reject::ExitCode(c) => write!(f, "exit code {c:?}, expected 0"),
             Reject::NoStdoutLine => write!(f, "no result line on stdout"),
+            Reject::AuditStdoutLine => write!(f, "audit mode printed a stdout line; audit runs make no timing claim"),
             Reject::MultipleStdoutLines(n) => write!(f, "{n} lines on stdout, expected exactly one"),
             Reject::ReportMissing => write!(f, "report file not written"),
             Reject::PassesZero => write!(f, "passes is 0"),
@@ -131,7 +134,10 @@ impl std::fmt::Display for Reject {
 
 #[derive(Debug, Clone)]
 pub struct Validated {
-    pub line: Line,
+    pub passes: u64,
+    pub elapsed: f64,
+    /// The upstream line; `None` in audit mode, which prints no line.
+    pub line: Option<Line>,
     pub report: Value,
 }
 
@@ -229,18 +235,27 @@ pub fn validate_run(exp: &Expect, ex: &Executed) -> Result<Validated, Reject> {
         return Err(Reject::ExitCode(ex.exit_code));
     }
     let text = std::str::from_utf8(&ex.stdout).map_err(|_| Reject::MalformedLine("stdout is not UTF-8".into()))?;
-    if text.is_empty() {
-        return Err(Reject::NoStdoutLine);
-    }
-    let body = text.strip_suffix('\n').unwrap_or(text);
-    let n = body.split('\n').count();
-    if n != 1 {
-        return Err(Reject::MultipleStdoutLines(n));
-    }
-    if body.is_empty() {
-        return Err(Reject::NoStdoutLine);
-    }
-    let line = parse_line(body).map_err(Reject::MalformedLine)?;
+    // Timed mode prints exactly one upstream line. Audit mode makes no timing claim and must
+    // print nothing on stdout; its labels are checked from the report alone.
+    let line = match exp.audit {
+        Some(_) => {
+            if !text.is_empty() {
+                return Err(Reject::AuditStdoutLine);
+            }
+            None
+        }
+        None => {
+            if text.is_empty() {
+                return Err(Reject::NoStdoutLine);
+            }
+            let body = text.strip_suffix('\n').unwrap_or(text);
+            let n = body.split('\n').count();
+            if n != 1 {
+                return Err(Reject::MultipleStdoutLines(n));
+            }
+            Some(parse_line(body).map_err(Reject::MalformedLine)?)
+        }
+    };
 
     let raw = ex.report.as_ref().ok_or(Reject::ReportMissing)?;
     let rep: Value = serde_json::from_slice(raw).map_err(|e| Reject::BadReport(format!("not JSON: {e}")))?;
@@ -263,26 +278,23 @@ pub fn validate_run(exp: &Expect, ex: &Executed) -> Result<Validated, Reject> {
     let r_elapsed = rf(&rep, "elapsed_s")?;
     rs(&rep, "environment")?;
 
-    // Declared expectations.
-    if line.label != exp.line_label() {
-        return Err(Reject::LabelMismatch(format!("line label '{}', expected '{}'", line.label, exp.line_label())));
-    }
+    // Declared expectations, checked against the report.
     if r_impl != exp.name {
         return Err(Reject::LabelMismatch(format!("report impl '{r_impl}', expected '{}'", exp.name)));
     }
-    if r_label != line.label {
-        return Err(Reject::LabelMismatch(format!("report label '{r_label}' differs from line label '{}'", line.label)));
+    if r_label != exp.line_label() {
+        return Err(Reject::LabelMismatch(format!("report label '{r_label}', expected '{}'", exp.line_label())));
     }
     let t = &exp.tags;
-    if line.algorithm != t.algorithm || line.faithful != t.faithful || line.bits != t.bits {
+    if r_alg != t.algorithm || r_faith != t.faithful || r_bits != t.bits {
         return Err(Reject::LabelMismatch(format!(
-            "tags algorithm={},faithful={},bits={} differ from declared algorithm={},faithful={},bits={}",
-            line.algorithm, line.faithful, line.bits, t.algorithm, t.faithful, t.bits
+            "tags algorithm={r_alg},faithful={r_faith},bits={r_bits} differ from declared algorithm={},faithful={},bits={}",
+            t.algorithm, t.faithful, t.bits
         )));
     }
     if let Some(th) = t.threads {
-        if line.threads != th {
-            return Err(Reject::LabelMismatch(format!("threads {} differ from declared {th}", line.threads)));
+        if r_threads != th {
+            return Err(Reject::LabelMismatch(format!("threads {r_threads} differ from declared {th}")));
         }
     }
     let want_mode = if exp.audit.is_some() { "audit" } else { "timed" };
@@ -293,23 +305,34 @@ pub fn validate_run(exp: &Expect, ex: &Executed) -> Result<Validated, Reject> {
         return Err(Reject::BadReport(format!("limit {r_limit}, expected {}", exp.limit)));
     }
 
-    // Line must equal report.
-    mismatch("passes", line.passes, r_passes)?;
-    mismatch("threads", line.threads, r_threads)?;
-    mismatch("algorithm", line.algorithm.as_str(), r_alg.as_str())?;
-    mismatch("faithful", line.faithful.as_str(), r_faith.as_str())?;
-    mismatch("bits", line.bits, r_bits)?;
-    if (line.elapsed - r_elapsed).abs() > 5.1e-7 {
-        return Err(Reject::LineReportMismatch(format!("elapsed: line {}, report {r_elapsed}", line.elapsed_text)));
+    // The upstream line must equal the report field for field.
+    if let Some(line) = &line {
+        if line.label != r_label {
+            return Err(Reject::LabelMismatch(format!("line label '{}' differs from report label '{r_label}'", line.label)));
+        }
+        if line.algorithm != t.algorithm || line.faithful != t.faithful || line.bits != t.bits {
+            return Err(Reject::LabelMismatch(format!(
+                "line tags algorithm={},faithful={},bits={} differ from declared",
+                line.algorithm, line.faithful, line.bits
+            )));
+        }
+        mismatch("passes", line.passes, r_passes)?;
+        mismatch("threads", line.threads, r_threads)?;
+        mismatch("algorithm", line.algorithm.as_str(), r_alg.as_str())?;
+        mismatch("faithful", line.faithful.as_str(), r_faith.as_str())?;
+        mismatch("bits", line.bits, r_bits)?;
+        if (line.elapsed - r_elapsed).abs() > 5.1e-7 {
+            return Err(Reject::LineReportMismatch(format!("elapsed: line {}, report {r_elapsed}", line.elapsed_text)));
+        }
     }
 
-    if line.passes == 0 {
+    if r_passes == 0 {
         return Err(Reject::PassesZero);
     }
     match exp.audit {
         None => {
-            if !(line.elapsed >= exp.min_seconds) {
-                return Err(Reject::ElapsedBelowMin { elapsed: line.elapsed, min: exp.min_seconds });
+            if !(r_elapsed >= exp.min_seconds) {
+                return Err(Reject::ElapsedBelowMin { elapsed: r_elapsed, min: exp.min_seconds });
             }
             let ms = rf(&rep, "min_seconds")?;
             if (ms - exp.min_seconds).abs() > 1e-9 {
@@ -317,8 +340,8 @@ pub fn validate_run(exp: &Expect, ex: &Executed) -> Result<Validated, Reject> {
             }
         }
         Some(k) => {
-            if line.passes != k as u64 {
-                return Err(Reject::AuditPassCount { got: line.passes, want: k });
+            if r_passes != k as u64 {
+                return Err(Reject::AuditPassCount { got: r_passes, want: k });
             }
         }
     }
@@ -326,7 +349,7 @@ pub fn validate_run(exp: &Expect, ex: &Executed) -> Result<Validated, Reject> {
     let bm = ex.bitmap.as_ref().ok_or(Reject::BitmapMissing)?;
     let want = reference::canonical_bytes(exp.limit);
     check_bitmap(&want, bm, exp)?;
-    Ok(Validated { line, report: rep })
+    Ok(Validated { passes: r_passes, elapsed: r_elapsed, line, report: rep })
 }
 
 fn check_bitmap(want: &[u8], got: &[u8], exp: &Expect) -> Result<(), Reject> {

@@ -105,10 +105,10 @@ fn record(
     match &res {
         Ok(v) => {
             rec["verdict"] = json!("PASS");
-            rec["passes"] = json!(v.line.passes);
-            rec["elapsed_s"] = json!(v.line.elapsed);
+            rec["passes"] = json!(v.passes);
+            rec["elapsed_s"] = json!(v.elapsed);
             if audit.is_none() {
-                rec["passes_per_s"] = json!(v.line.passes as f64 / v.line.elapsed);
+                rec["passes_per_s"] = json!(v.passes as f64 / v.elapsed);
             }
         }
         Err(e) => {
@@ -140,7 +140,7 @@ pub fn run(a: &RunArgs) -> Result<RunResult, String> {
         match res {
             Ok(v) => {
                 if kind == "trial" {
-                    samples.get_mut(&spec.name).unwrap().push(v.line.passes as f64 / v.line.elapsed);
+                    samples.get_mut(&spec.name).unwrap().push(v.passes as f64 / v.elapsed);
                     upstream.push(rec["raw_line"].as_str().unwrap_or("").to_string());
                 }
                 Ok(None)

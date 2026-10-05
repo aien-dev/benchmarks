@@ -1,0 +1,68 @@
+{
+  "schema": "aien-prime-race/summary/v1",
+  "contract_version": "1",
+  "receipt_sha256": "832d0cc8b24f95e14c13fdf37cfb4e5fed01a2ca14c369f6640bb9fcaefd13f2",
+  "created_utc": "2026-10-05T18:55:51.195137240+00:00",
+  "unit": "passes_per_second",
+  "limit": 1000000,
+  "environment_note": "Linux-hosted GB10, not AIENOS",
+  "implementations": [
+    {
+      "name": "cpu-c-base",
+      "labels": {
+        "algorithm": "base",
+        "bits": 1,
+        "faithful": "yes",
+        "line_label": "aien-cpu-c-base",
+        "threads": 1
+      },
+      "environment": "linux-host-cpu",
+      "median": 2069.651982934724,
+      "min": 2064.3318770480573,
+      "max": 2104.7099184154918,
+      "mean": 2072.389921506531,
+      "sd": 11.526235824152685,
+      "cv": 0.005561808472690143,
+      "n": 10,
+      "verdict": "PASS"
+    },
+    {
+      "name": "cuda-mirror",
+      "labels": {
+        "algorithm": "other",
+        "bits": 1,
+        "faithful": "no",
+        "line_label": "aien-cuda-mirror",
+        "threads": null
+      },
+      "environment": "linux-hosted-gb10-cuda",
+      "median": 19702.599522428365,
+      "min": 19482.597380987238,
+      "max": 20059.143834397262,
+      "mean": 19729.673799283162,
+      "sd": 173.47332313377814,
+      "cv": 0.00879250842657525,
+      "n": 10,
+      "verdict": "PASS"
+    },
+    {
+      "name": "gb10-native",
+      "labels": {
+        "algorithm": "other",
+        "bits": 1,
+        "faithful": "no",
+        "line_label": "aien-gb10-native",
+        "threads": null
+      },
+      "environment": "linux-hosted-gb10-native",
+      "median": 970.8017946790733,
+      "min": 962.9628296347761,
+      "max": 976.0922394167684,
+      "mean": 970.8380002673941,
+      "sd": 4.316022631486968,
+      "cv": 0.004445667176499295,
+      "n": 10,
+      "verdict": "PASS"
+    }
+  ]
+}

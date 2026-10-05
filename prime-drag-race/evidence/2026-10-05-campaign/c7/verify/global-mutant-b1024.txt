@@ -1,0 +1,5 @@
+FAIL limit 100000: audit_pass_diff: audit pass 0: odd number 9 is composite or 1 but the bit is set
+FAIL limit 1000000: audit_pass_diff: audit pass 0: odd number 9 is composite or 1 but the bit is set
+FAIL limit 10000000: audit_pass_diff: audit pass 0: odd number 9 is composite or 1 but the bit is set
+verify gb10-native-mutant: 3 limits, audit passes 3, 3 failures -> FAIL
+reference pi(1000000) = 78498

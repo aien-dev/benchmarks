@@ -1,0 +1,56 @@
+21:44:04Z window start; load 2.08 1.58 1.20 4/2289 1962493
+reference pi(1000000) = 78498
+21:44:40Z auto-default-b64 rc=0
+reference pi(1000000) = 78498
+21:45:16Z auto-default-b128 rc=0
+reference pi(1000000) = 78498
+21:46:00Z auto-big-b1024 rc=0
+reference pi(1000000) = 78498
+21:46:46Z auto-big-b64 rc=0
+reference pi(1000000) = 78498
+21:46:47Z auto-mutant-b64 rc=1
+reference pi(1000000) = 78498
+21:46:48Z auto-mutant-b1024 rc=1
+reference pi(1000000) = 78498
+21:47:22Z global-default-b64 rc=0
+reference pi(1000000) = 78498
+21:47:58Z global-default-b128 rc=0
+reference pi(1000000) = 78498
+21:48:42Z global-big-b1024 rc=0
+reference pi(1000000) = 78498
+21:49:28Z global-big-b64 rc=0
+reference pi(1000000) = 78498
+21:49:29Z global-mutant-b64 rc=1
+reference pi(1000000) = 78498
+21:49:30Z global-mutant-b1024 rc=1
+21:49:30Z verify summary: fails=[]
+21:49:30Z T A-auto64 timed (table auto, spin 2000, budget 64, audit 5, warmup 1, 10 x >=5 s); load 1.39 1.74 1.43 2/2269 1986823
+gb10-native      median      9181.66  min      9089.26  max      9265.99  mean      9171.11  sd      52.22  cv 0.0057  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/a9528fc71ca20b4389db354b874bf71a34820d6bd906de3ee2bbc148b2dab074.json (s
+21:50:26Z T A-auto64 rc=0
+21:50:26Z T B-global64 timed (table global, spin 2000, budget 64, audit 5, warmup 1, 10 x >=5 s); load 1.70 1.77 1.46 2/2298 2008404
+gb10-native      median     11364.76  min     11083.91  max     11447.66  mean     11295.04  sd     152.59  cv 0.0135  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/e984949bd9d1cb96c563691a0052b349f9b43a722d1db709f577ae3713a75894.json (s
+21:51:23Z T B-global64 rc=0
+21:51:23Z T C-auto64 timed (table auto, spin 2000, budget 64, audit 5, warmup 1, 10 x >=5 s); load 1.69 1.75 1.47 1/2280 2011102
+gb10-native      median      9122.05  min      9068.32  max      9166.76  mean      9127.15  sd      28.49  cv 0.0031  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/8e4dd91eb4cc029b1427e04d363de4f8a2ef29640ea844f7e45438866b54df15.json (s
+21:52:19Z T C-auto64 rc=0
+21:52:19Z T D-global64 timed (table global, spin 2000, budget 64, audit 5, warmup 1, 10 x >=5 s); load 1.41 1.66 1.45 1/2291 2014060
+gb10-native      median     11333.47  min     11132.72  max     11409.85  mean     11297.57  sd     101.00  cv 0.0089  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/f8bfeff1fbd00e3f959b323329916295bfea129c3d2ead718269e709a52e300d.json (s
+21:53:15Z T D-global64 rc=0
+21:53:15Z T E-auto128 timed (table auto, spin 2000, budget 128, audit 5, warmup 1, 10 x >=5 s); load 1.31 1.60 1.44 1/2274 2016662
+gb10-native      median     19718.99  min     19467.30  max     19872.82  mean     19699.03  sd     119.64  cv 0.0061  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/2c0b0912017235922076718e557616c7545c324e3c6f7ee4f29aa7574fbc5a63.json (s
+21:54:12Z T E-auto128 rc=0
+21:54:12Z T F-global128 timed (table global, spin 2000, budget 128, audit 5, warmup 1, 10 x >=5 s); load 1.24 1.53 1.43 1/2262 2019408
+gb10-native      median     17012.24  min     16903.99  max     17683.93  mean     17142.63  sd     293.28  cv 0.0171  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/c294fb884bf73a05d0bc4e80f7aa197ee9cb9445eaed77098358a78bf066d4ba.json (s
+21:55:08Z T F-global128 rc=0
+21:55:08Z T G-auto128 timed (table auto, spin 2000, budget 128, audit 5, warmup 1, 10 x >=5 s); load 1.08 1.44 1.40 2/2263 2022403
+gb10-native      median     19665.75  min     19534.44  max     19808.60  mean     19648.73  sd      85.84  cv 0.0044  (n=10)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/b00ddaa8b615ab3d4e122309398ae4c173de92eb4fa508123eafc3f5d2dd0b17.json (s
+21:56:05Z T G-auto128 rc=0
+21:56:05Z window end; load 1.39 1.45 1.41 2/2281 2024880
+hold rc=0

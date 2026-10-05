@@ -1,0 +1,2 @@
+PASS: 31 checks, 0 failed
+FB1-CUT4 chip gate rc=0 receipt=/home/drakestapleton/workspace/evidence/prime-race/c5/eltwise/FB1-CUT4-c505e7f/receipt.json

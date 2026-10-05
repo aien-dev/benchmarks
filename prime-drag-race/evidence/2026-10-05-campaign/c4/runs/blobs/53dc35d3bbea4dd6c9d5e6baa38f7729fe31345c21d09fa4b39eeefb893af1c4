@@ -1,0 +1,19 @@
+{
+  "schema": "aien-prime-race/impl-report/v1",
+  "impl": "gb10-native",
+  "label": "aien-gb10-native",
+  "algorithm": "other",
+  "faithful": "no",
+  "bits": 1,
+  "threads": 8192,
+  "environment": "linux-hosted-gb10-native",
+  "limit": 1000000,
+  "min_seconds": 5.000000,
+  "mode": "timed",
+  "passes": 5401,
+  "elapsed_s": 5.000480,
+  "status": "COMPLETE",
+  "error": null,
+  "build": {"source_commit": "d6632db79c14345cfc638c0569352624f07d9bcf", "cc": "cc", "cflags": "-O3 -mcpu=native -Ibench/prime_race + omega CFLAGS; libomega_gpu.a built with omega CFLAGS"},
+  "detail": {"grid": 64, "cta_budget": 64, "block": 128, "words": 15625, "nprimes": 167, "table": "shared", "shared_bytes": 2016, "spin_us": 0, "kernel_code_sha256": "418f1295ad2f0d2ce5953f09459d89d4907ad4618c0f99f4d564f71b0427a64e", "kernel_insns": 80, "kernel_gpr": 26, "mutant": 0, "launches": 5401, "diag_kernel_ns_total": 4966334753, "diag_note": "sum of session elapsed_ns (submit to second marker), diagnostic only"}
+}

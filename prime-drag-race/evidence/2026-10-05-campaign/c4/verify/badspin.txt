@@ -1,0 +1,2 @@
+gb10-native: PR_GB10_SPIN_US must be 0..1000000
+EXEC_FAILED: setup failed

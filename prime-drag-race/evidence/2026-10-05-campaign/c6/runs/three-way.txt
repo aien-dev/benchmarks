@@ -1,0 +1,37 @@
+aien-cpu-c-base;10339;5.000322;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98512;5.000046;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;98317;5.000010;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10316;5.000301;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98253;5.000045;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;99908;5.000035;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10347;5.000161;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;99517;5.000025;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;99655;5.000023;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10336;5.000039;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98443;5.000023;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;97892;5.000002;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10346;5.000286;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98845;5.000018;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;97269;5.000047;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10334;5.000256;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;97939;5.000048;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;97495;5.000018;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10349;5.000402;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98098;5.000004;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;98203;5.000040;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10350;5.000026;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98913;5.000012;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;98192;5.000037;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10348;5.000387;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;98503;5.000035;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;97281;5.000027;15872;algorithm=other,faithful=no,bits=1
+aien-cpu-c-base;10317;5.000106;1;algorithm=base,faithful=yes,bits=1
+aien-gb10-native;99262;5.000019;15744;algorithm=other,faithful=no,bits=1
+aien-cuda-mirror;98095;5.000042;15872;algorithm=other,faithful=no,bits=1
+
+cpu-c-base       median      2068.37  min      2063.08  max      2069.99  mean      2067.55  sd       2.54  cv 0.0012  (n=10)
+gb10-native      median     19701.34  min     19587.61  max     19903.30  mean     19725.59  sd     100.69  cv 0.0051  (n=10)
+cuda-mirror      median     19628.54  min     19453.62  max     19981.46  mean     19646.03  sd     180.77  cv 0.0092  (n=10)
+
+verdict: PASS
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c6/runs/1a3eafe9bfcbd8f3052a1dd677f96ae197fb0f447c6007152f3e2b08a8de621c.json (sha256 1a3eafe9bfcbd8f3052a1dd677f96ae197fb0f447c6007152f3e2b08a8de621c)

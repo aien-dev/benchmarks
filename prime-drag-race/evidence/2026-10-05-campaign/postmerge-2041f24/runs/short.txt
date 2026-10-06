@@ -1,0 +1,10 @@
+aien-gb10-native;97661;5.000050;15744;algorithm=other,faithful=no,bits=1
+aien-gb10-native;99152;5.000022;15744;algorithm=other,faithful=no,bits=1
+aien-gb10-native;99332;5.000017;15744;algorithm=other,faithful=no,bits=1
+aien-gb10-native;98551;5.000004;15744;algorithm=other,faithful=no,bits=1
+aien-gb10-native;98809;5.000015;15744;algorithm=other,faithful=no,bits=1
+
+gb10-native      median     19761.74  min     19532.00  max     19866.33  mean     19740.11  sd     131.09  cv 0.0066  (n=5)
+
+verdict: PASS
+receipt: /home/drakestapleton/workspace/evidence/prime-race/postmerge-2041f24/runs/3dda55919212bd59ae0d623179cdde762a6a87251312d0ca355a7e462f9182ca.json (sha256 3dda55919212bd59ae0d623179cdde762a6a87251312d0ca355a7e462f9182ca)

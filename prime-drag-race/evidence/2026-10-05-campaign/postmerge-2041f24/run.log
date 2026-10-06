@@ -1,0 +1,19 @@
+checks=172 failed=0
+VERDICT PASS
+PASS: 24 checks, 0 failed
+02:15:16Z build + host checks rc=0
+02:15:17Z chip start 2041f243522ac1483b88e9db796295d9d8f2c051; load 2.31 2.05 2.03 2/2321 325253
+reference pi(1000000) = 78498
+02:15:52Z default-b128 rc=0
+reference pi(1000000) = 78498
+02:16:36Z big-b1024 rc=0
+reference pi(1000000) = 78498
+02:16:37Z mutant-b1024 rc=1
+02:16:37Z elementwise chip gate rc=0: PASS: 31 checks, 0 failed FB1-CUT4 chip gate rc=0 receipt=/home/drakestapleton/workspace/evidence/prime-race/postmerge-2041f24/eltwise/FB1-CUT4-2041f24/receipt.
+02:16:37Z verify summary: fails=[]
+02:16:37Z short timed run (budget 128, spin 2000, table auto, audit 5, warmup 1, 5 x >=5 s)
+gb10-native      median     19761.74  min     19532.00  max     19866.33  mean     19740.11  sd     131.09  cv 0.0066  (n=5)
+receipt: /home/drakestapleton/workspace/evidence/prime-race/postmerge-2041f24/runs/3dda55919212bd59ae0d623179cdde762a6a87251312d0ca355a7e462
+02:17:08Z short run rc=0
+02:17:08Z VERDICT PASS median 19761.74
+hold rc=0

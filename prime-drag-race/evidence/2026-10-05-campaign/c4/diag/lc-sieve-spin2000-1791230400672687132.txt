@@ -1,0 +1,3 @@
+DIAGNOSTIC sieve launches=2000 grid=64 block=128 insns=64 limit=1000000 words=15625 base_primes=167 odd_primes_found=78497 spin_us=2000
+  submit->marker2        median=   784.8 us  min=   776.0 us  max=   873.4 us
+  host wall per launch   median=   785.2 us  min=   776.4 us  max=   874.0 us

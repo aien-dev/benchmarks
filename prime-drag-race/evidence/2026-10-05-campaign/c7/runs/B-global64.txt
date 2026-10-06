@@ -1,0 +1,15 @@
+aien-gb10-native;55510;5.000003;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;55452;5.000053;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;56630;5.000068;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;57140;5.000034;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;57067;5.000034;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;56194;5.000062;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;57019;5.000053;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;57239;5.000063;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;55420;5.000042;8192;algorithm=other,faithful=no,bits=1
+aien-gb10-native;57086;5.000041;8192;algorithm=other,faithful=no,bits=1
+
+gb10-native      median     11364.76  min     11083.91  max     11447.66  mean     11295.04  sd     152.59  cv 0.0135  (n=10)
+
+verdict: PASS
+receipt: /home/drakestapleton/workspace/evidence/prime-race/c7/runs/e984949bd9d1cb96c563691a0052b349f9b43a722d1db709f577ae3713a75894.json (sha256 e984949bd9d1cb96c563691a0052b349f9b43a722d1db709f577ae3713a75894)

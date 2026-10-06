@@ -1,0 +1,4 @@
+FAIL limit 1000000: label_mismatch: report impl 'gb10-native-mutant', expected 'gb10-native'
+FAIL limit 10000000: label_mismatch: report impl 'gb10-native-mutant', expected 'gb10-native'
+verify gb10-native: 2 limits, audit passes 3, 2 failures -> FAIL
+reference pi(1000000) = 78498

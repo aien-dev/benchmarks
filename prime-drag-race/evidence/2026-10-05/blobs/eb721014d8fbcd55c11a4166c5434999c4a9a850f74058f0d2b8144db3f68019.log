@@ -1,0 +1,9 @@
+kernel: 63 IR insns, 64 encoded words, 26 GPRs, sha256 cbac128564a5cff5f3bd4ed81de4be4e1016577c78b88b3d6d0669d44dc33a12
+nvdisasm: 64 words, 0 undecodable, 6 branch targets checked (/tmp/pr_gb10_sieve_427789.sass)
+simulator: 155 limits, 0 differ, 643235536 IR steps
+magic model limit 1000000: 1838283 word/prime pairs, 0 needed the correction, 0 wrong
+checks=25 failed=0
+VERDICT PASS
+GPU lock held from 2026-10-05T18:41:52Z
+limit 9: bitmap differs from oracle: /tmp/tmp.mIN2cHHlnl/got.bin /tmp/tmp.mIN2cHHlnl/want.bin differ: byte 1, line 1
+audit sweep: 8 runs, 14 passes checked

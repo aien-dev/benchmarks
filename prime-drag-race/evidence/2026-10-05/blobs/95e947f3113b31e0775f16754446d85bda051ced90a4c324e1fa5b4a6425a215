@@ -1,0 +1,19 @@
+{
+  "schema": "aien-prime-race/impl-report/v1",
+  "impl": "cpu-c-base",
+  "label": "aien-cpu-c-base",
+  "algorithm": "base",
+  "faithful": "yes",
+  "bits": 1,
+  "threads": 1,
+  "environment": "linux-host-cpu",
+  "limit": 1000000,
+  "min_seconds": 5.000000,
+  "mode": "timed",
+  "passes": 10351,
+  "elapsed_s": 5.000405,
+  "status": "COMPLETE",
+  "error": null,
+  "build": {"source_commit": "c7086da992ff37e4cc955cbdc9c7f042e49d6f27", "cc": "cc", "cflags": "-std=gnu11 -Wall -Wextra -Werror -D_GNU_SOURCE -O3 -mcpu=native"},
+  "detail": {}
+}

@@ -1,0 +1,23 @@
+{
+  "schema": "aien-prime-race/gb10-chip-test/v1",
+  "verdict": "FAIL",
+  "reason": "limit 9: mismatch",
+  "omega_commit": "43ed7e36e6fbe49c81242fc3212420a224c74cf0",
+  "physics_commit": "6d7cf0d4d8eb2cda7b512100ff6058e25dbb3ddf",
+  "started": "2026-10-05T18:41:49Z",
+  "finished": "2026-10-05T18:41:52Z",
+  "binary_sha256": "f85d2af9446f3b6a5ef720ec85bfd30cb4adeaef5a8dfb0bd6b1eab88c31529a",
+  "mutant_binary_sha256": "05304b99fd89a5f562e131411f678846fe93f8cb2837fbdca53e3fbdb1e24184",
+  "kernel_code_sha256": "",
+  "host_test_pass": true,
+  "audit_runs": 8,
+  "audit_passes_checked": 14,
+  "timed_smoke_pass": false,
+  "mutant_caught": false,
+  "gpu": "NVIDIA GB10, GPU-fb8e53f0-3207-e89b-d02f-acdfe2695b59, 580.173.02",
+  "kernel": "7.0.0-1019-nvidia",
+  "gpu_lock": "/tmp/aien-gb10.lock",
+  "quiet_flag": "not touched (operator window)",
+  "reference": "independent Eratosthenes oracle (gb10_sieve_host_test --oracle), byte-for-byte per pass",
+  "log_blob": "eb721014d8fbcd55c11a4166c5434999c4a9a850f74058f0d2b8144db3f68019"
+}

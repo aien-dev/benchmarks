@@ -1,0 +1,19 @@
+{
+  "schema": "aien-prime-race/impl-report/v1",
+  "impl": "cuda-mirror",
+  "label": "aien-cuda-mirror",
+  "algorithm": "other",
+  "faithful": "no",
+  "bits": 1,
+  "threads": 15872,
+  "environment": "linux-hosted-gb10-cuda",
+  "limit": 1000000,
+  "min_seconds": 5.000000,
+  "mode": "timed",
+  "passes": 97896,
+  "elapsed_s": 5.000042,
+  "status": "COMPLETE",
+  "error": null,
+  "build": {"source_commit": "omega=c7086da992ff37e4cc955cbdc9c7f042e49d6f27;yardsticks=a8b24a10f963302d5ed608303605a718a6d0a8b0", "cc": "cc + nvcc", "cflags": "host: -O3 -mcpu=native -Wall -Wextra; nvcc: -O3 -arch=sm_121 -Xcompiler -O3,-mcpu=native"},
+  "detail": {"grid":62,"block":256,"words32":15625,"nprimes":167,"cuda_runtime":13000,"cuda_driver":13000,"diag_kernel_ns_total":3504309596,"diag_kernel_ns_note":"sum of cudaEvent kernel-only times, diagnostic, not the score","result_copy":"D2H of full output counted in every pass","nvcc_version":"Cuda compilation tools, release 13.0, V13.0.88 Build cuda_13.0.r13.0/compiler.36424714_0","nvcc_flags":"-O3 -arch=sm_121 -Xcompiler -O3,-mcpu=native","omega_commit":"c7086da992ff37e4cc955cbdc9c7f042e49d6f27","yardsticks_commit":"a8b24a10f963302d5ed608303605a718a6d0a8b0"}
+}

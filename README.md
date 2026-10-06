@@ -221,3 +221,7 @@ Copyright (c) 2026 Drake Stapleton and AIEN Contributors. See [NOTICE](NOTICE) f
 - **Benchmark Code & Harness**: Standard [GNU AGPL-3.0-or-later](LICENSE) for universal execution, replication, and integration.
 - **Benchmark Data & Metrics**: Raw telemetry JSON, hardware timing records, and SVG comparison charts are dedicated to the public domain under [CC0-1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 - **Upstream Development Charter**: [CONSTITUTION.md](CONSTITUTION.md) defines the internal architectural doctrine and stewardship standards for upstream development and does not bind downstream users.
+
+## Prime Drag Race
+
+The frozen contract and suite runner for the AIEN Prime Drag Race live in [prime-drag-race/](prime-drag-race/CONTRACT.md). The runner is a standalone Rust crate (`cargo build` inside that directory).

@@ -1,0 +1,23 @@
+# tests/gates/bench-test.gate
+# Mirrors hosted: .forgejo/workflows/ci.yml and GitHub ci.yml (manual dispatch) 'cargo test --verbose' (hosted job 28 s total)
+gate: BENCH-TEST
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - Cargo.lock
+  - src/
+  - data/
+  - manifests/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["test"]
+expects:
+  exit: 0
+  verdict: PASS
+timeout: 20m
+exactness: EXACT
+cache_scope: machine

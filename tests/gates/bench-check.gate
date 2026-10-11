@@ -1,0 +1,21 @@
+# tests/gates/bench-check.gate
+# Mirrors hosted: .forgejo/workflows/ci.yml 'cargo check --all-targets' (GitHub dispatch-only ci.yml runs 'cargo check --verbose'; needs sibling ../canonical-branch-native-runtime)
+gate: BENCH-CHECK
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - Cargo.lock
+  - src/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["check"]
+expects:
+  exit: 0
+  verdict: PASS
+timeout: 15m
+exactness: EXACT
+cache_scope: machine

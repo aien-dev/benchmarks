@@ -1,0 +1,20 @@
+# tests/gates/bench-fmt.gate
+# Mirrors hosted: .forgejo/workflows/ci.yml 'cargo fmt --all -- --check' (needs sibling ../canonical-branch-native-runtime)
+gate: BENCH-FMT
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - src/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["fmt"]
+expects:
+  exit: 0
+  verdict: PASS
+timeout: 5m
+exactness: EXACT
+cache_scope: portable

@@ -1,0 +1,24 @@
+# tests/gates/bench-verify.gate
+# Mirrors hosted: .forgejo/workflows/ci.yml and GitHub ci.yml (manual dispatch) 'cargo run --release -- verify'
+gate: BENCH-VERIFY
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - Cargo.lock
+  - src/
+  - data/
+  - manifests/
+  - artifacts/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["verify"]
+expects:
+  exit: 0
+  verdict: PASS
+timeout: 20m
+exactness: EXACT
+cache_scope: machine

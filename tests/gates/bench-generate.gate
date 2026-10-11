@@ -1,0 +1,26 @@
+# tests/gates/bench-generate.gate
+# Mirrors hosted: ci.yml (manual dispatch) 'cargo run --release -- generate --output assets'
+gate: BENCH-GENERATE
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - Cargo.lock
+  - src/
+  - data/
+  - manifests/
+  - artifacts/
+  - assets/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["generate"]
+expects:
+  exit: 0
+  observe: ["assets_changed == false"]
+  verdict: PASS
+timeout: 20m
+exactness: EXACT
+cache_scope: machine

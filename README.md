@@ -5,7 +5,9 @@
 Empirical performance measurements, active measurement harnesses, and comparative telemetry for the **AIEN Sovereign Agent Architecture** running on the **NVIDIA DGX Spark** (Grace Blackwell GB10, aarch64).
 
 
-> **Status (23 September 2026):** figures in this README predate the evidence standard adopted in [aien-sovereign-core](https://github.com/aien-dev/aien-sovereign-core#measured-results) and are being regenerated. A figure is current only when its artifact bundle carries commit identity, hardware and environment record, exact command, raw samples, SHA-256 digests, measurement definition, and reproducibility steps. The raw files in `data/` are kept as recorded, including service names from before the openclaw-rs to aegis-runtime rename.
+> **Status (23 September 2026, labels updated 12 October 2026):** the figures in the Executive Summary and the Detailed Telemetry sections below are **withdrawn**. They predate the evidence standard adopted in [aien-sovereign-core](https://github.com/aien-dev/aien-sovereign-core#measured-results), have not been regenerated, and stay here only as a historical record. A figure is current only when its artifact bundle carries commit identity, hardware and environment record, exact command, raw samples, SHA-256 digests, measurement definition, and reproducibility steps. The raw files in `data/` are kept as recorded, including service names from before the openclaw-rs to aegis-runtime rename.
+
+> **Current result:** the [Prime Drag Race campaign of 5 October 2026](prime-drag-race/CAMPAIGN-2026-10-05.md) is the evidence-backed measurement in this repository. On the DGX Spark, the native GB10 prime sieve ran at 19,701 passes per second against 19,629 for the CUDA reference (a tie, inside run-to-run spread) and 20.3x the frozen native baseline, with correctness checked on the chip (receipt `1a3eafe9`).
 
 ---
 
@@ -20,7 +22,9 @@ Empirical performance measurements, active measurement harnesses, and comparativ
 
 ---
 
-## Executive Summary
+## Executive Summary (withdrawn: pre-standard figures)
+
+*Withdrawn. Every figure in this section predates the evidence standard and has not been regenerated. See the status note at the top.*
 
 The AIEN architecture enforces a strict Native Systems Priority: zero Python or Node interpreters across core services, gateways, or background daemons. Core agent services run as pure compiled native Rust binaries with in-memory TPM-bound key resolution.
 
@@ -32,7 +36,9 @@ The AIEN architecture enforces a strict Native Systems Priority: zero Python or 
 
 ---
 
-## Detailed Telemetry & Comparison Tables
+## Detailed Telemetry & Comparison Tables (withdrawn: pre-standard figures)
+
+*Withdrawn. Every table, chart and figure from here to the Portability section predates the evidence standard and has not been regenerated.*
 
 ### 1. Like-for-Like Microservice Comparisons (Apples-to-Apples)
 
@@ -164,7 +170,7 @@ cargo build --release --workspace
 
 ## Reproducing the Benchmarks (Active Measurement Harness)
 
-The benchmark repository contains the active measurement harness used to generate the published numbers. You can run a single benchmark command to measure everything from scratch on your own machine.
+The benchmark repository contains the active measurement harness used to generate the withdrawn numbers above. You can run a single benchmark command to measure everything from scratch on your own machine.
 
 ### One-Command Measurement Sweep
 
@@ -224,4 +230,4 @@ Copyright (c) 2026 Drake Stapleton and AIEN Contributors. See [NOTICE](NOTICE) f
 
 ## Prime Drag Race
 
-The frozen contract and suite runner for the AIEN Prime Drag Race live in [prime-drag-race/](prime-drag-race/CONTRACT.md). The runner is a standalone Rust crate (`cargo build` inside that directory).
+The current, evidence-backed result is the [5 October 2026 campaign](prime-drag-race/CAMPAIGN-2026-10-05.md) (summary at the top of this README). The frozen contract and suite runner for the AIEN Prime Drag Race live in [prime-drag-race/](prime-drag-race/CONTRACT.md). The runner is a standalone Rust crate (`cargo build` inside that directory).

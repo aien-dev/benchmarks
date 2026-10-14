@@ -90,7 +90,7 @@ jobs:
         if: steps.anchors.outputs.enrolled == 'true'
         uses: actions/checkout@v4
         with:
-          repository: aien-dev/aien-sovereign-core
+          repository: aien-spark/aien-sovereign-core
           ref: ${{ env.AIEN_TEST_PIN }}
           path: .aien-test-src
 

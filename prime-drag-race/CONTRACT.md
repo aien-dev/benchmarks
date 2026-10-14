@@ -117,5 +117,5 @@ leaderboard entries.
     prime_race verify --impl ./cpu_base --name cpu-c-base \
         --declare algorithm=base,faithful=yes,bits=1,threads=1
     prime_race run --impl cpu-c-base=./cpu_base --declare cpu-c-base=algorithm=base,faithful=yes,bits=1,threads=1 \
-        --source cpu-c-base=aien-dev/omega@COMMIT --build 'cpu-c-base=cc -O3 -mcpu=native ...' \
+        --source cpu-c-base=aien-spark/omega@COMMIT --build 'cpu-c-base=cc -O3 -mcpu=native ...' \
         --evidence-dir ~/workspace/evidence/prime-race

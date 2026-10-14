@@ -5,7 +5,7 @@
 Empirical performance measurements, active measurement harnesses, and comparative telemetry for the **AIEN Sovereign Agent Architecture** running on the **NVIDIA DGX Spark** (Grace Blackwell GB10, aarch64).
 
 
-> **Status (23 September 2026, labels updated 12 October 2026):** the figures in the Executive Summary and the Detailed Telemetry sections below are **withdrawn**. They predate the evidence standard adopted in [aien-sovereign-core](https://github.com/aien-dev/aien-sovereign-core#measured-results), have not been regenerated, and stay here only as a historical record. A figure is current only when its artifact bundle carries commit identity, hardware and environment record, exact command, raw samples, SHA-256 digests, measurement definition, and reproducibility steps. The raw files in `data/` are kept as recorded, including service names from before the openclaw-rs to aegis-runtime rename.
+> **Status (23 September 2026, labels updated 12 October 2026):** the figures in the Executive Summary and the Detailed Telemetry sections below are **withdrawn**. They predate the evidence standard adopted in [aien-sovereign-core](https://github.com/aien-spark/aien-sovereign-core#measured-results), have not been regenerated, and stay here only as a historical record. A figure is current only when its artifact bundle carries commit identity, hardware and environment record, exact command, raw samples, SHA-256 digests, measurement definition, and reproducibility steps. The raw files in `data/` are kept as recorded, including service names from before the openclaw-rs to aegis-runtime rename.
 
 > **Current result:** the [Prime Drag Race campaign of 5 October 2026](prime-drag-race/CAMPAIGN-2026-10-05.md) is the evidence-backed measurement in this repository. On the DGX Spark, the native GB10 prime sieve ran at 19,701 passes per second against 19,629 for the CUDA reference (a tie, inside run-to-run spread) and 20.3x the frozen native baseline, with correctness checked on the chip (receipt `1a3eafe9`).
 
@@ -176,7 +176,7 @@ The main crate (`aien-benchmarks`) has path dependencies on five crates under `.
 
 ```bash
 # Clone the repository
-git clone https://github.com/aien-dev/benchmarks.git
+git clone https://github.com/aien-spark/benchmarks.git
 cd benchmarks
 
 # Run the complete live measurement harness (needs the sibling crates above)
@@ -220,9 +220,9 @@ cargo test --verbose
 
 ## Ecosystem Integration
 
-- **Primary Repository**: [github.com/aien-dev/aien-dev](https://github.com/aien-dev/aien-dev)
-- **Sovereign Core**: [github.com/aien-dev/aien-sovereign-core](https://github.com/aien-dev/aien-sovereign-core)
-- **Website & Showcase**: [github.com/aien-dev/drakestapleton.com](https://github.com/aien-dev/drakestapleton.com) ([drakestapleton.com](https://drakestapleton.com))
+- **Primary Repository**: [github.com/aien-spark/aien-dev](https://github.com/aien-spark/aien-dev)
+- **Sovereign Core**: [github.com/aien-spark/aien-sovereign-core](https://github.com/aien-spark/aien-sovereign-core)
+- **Website & Showcase**: [github.com/aien-spark/drakestapleton.com](https://github.com/aien-spark/drakestapleton.com) ([drakestapleton.com](https://drakestapleton.com))
 
 ---
 

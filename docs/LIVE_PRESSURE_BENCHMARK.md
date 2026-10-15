@@ -89,6 +89,7 @@ Executed via `stress_aien_live` against active production daemons on `spark`.
 | **32** | 640 | 3165.60 ms | 202.17 texts/s | 4.95 ms |
 
 ### MAX LLM Streaming & Concurrency Pressure (Port 18082, `unsloth/Llama-3.2-1B-Instruct`)
+- Historical record: this section was measured against Modular MAX, which AIEN removed on 2026-10-15.
 - 32 tokens per stream, multi-stream parallel client load.
 
 | Streams | TTFT p50 (ms) | ITL p50 (ms) | ITL p95 (ms) | Total Tok/s | E2E Latency p50 (ms) |

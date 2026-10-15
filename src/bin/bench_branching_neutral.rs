@@ -1,5 +1,5 @@
 //! Neutral out-of-process benchmark runner for agentic branching suites on NVIDIA DGX Spark GB10.
-//! Supports simultaneous branch dispatch against AIEN, Modular MAX, and vLLM.
+//! Supports simultaneous branch dispatch against AIEN and vLLM.
 //! Sends complete 32K shared prefix + branch suffix tokens, performs continuous 50ms PSS/RSS
 //! sampling during execution, validates model revision, and records exact token-level ITL distributions.
 
@@ -24,8 +24,8 @@ struct Args {
     #[arg(short, long, default_value = "manifests/qwen25_7b_branching_32k.json")]
     manifest: PathBuf,
 
-    /// Comma-separated list of target engines: aien, max, vllm
-    #[arg(short, long, default_value = "aien,max,vllm")]
+    /// Comma-separated list of target engines: aien, vllm
+    #[arg(short, long, default_value = "aien,vllm")]
     engines: String,
 
     /// Comma-separated list of branch counts to sweep: 1,10,25,50,100,250,500
@@ -47,10 +47,6 @@ struct Args {
     /// AIEN base URL
     #[arg(long, default_value = "http://127.0.0.1:18092/v1")]
     aien_url: String,
-
-    /// Modular MAX base URL
-    #[arg(long, default_value = "http://127.0.0.1:18098/v1")]
-    max_url: String,
 
     /// vLLM base URL
     #[arg(long, default_value = "http://127.0.0.1:18094/v1")]
@@ -180,7 +176,10 @@ async fn verify_engine_model(
         .map_err(|e| format!("Failed to reach engine /v1/models at {}: {}", endpoint, e))?;
 
     if !res.status().is_success() {
-        return Err(format!("Engine returned HTTP {} on /v1/models", res.status()));
+        return Err(format!(
+            "Engine returned HTTP {} on /v1/models",
+            res.status()
+        ));
     }
 
     let body: serde_json::Value = res
@@ -338,13 +337,19 @@ async fn execute_single_branch(
 
                             if let Some(choices) = val.get("choices").and_then(|c| c.as_array()) {
                                 if let Some(choice) = choices.first() {
-                                    if let Some(text_delta) = choice.get("text").and_then(|t| t.as_str()) {
+                                    if let Some(text_delta) =
+                                        choice.get("text").and_then(|t| t.as_str())
+                                    {
                                         generated_text.push_str(text_delta);
                                     }
-                                    if let Some(tid) = choice.get("token_id").and_then(|t| t.as_u64()) {
+                                    if let Some(tid) =
+                                        choice.get("token_id").and_then(|t| t.as_u64())
+                                    {
                                         generated_token_ids.push(tid as u32);
                                         tokens_count += 1;
-                                    } else if let Some(tids) = choice.get("token_ids").and_then(|t| t.as_array()) {
+                                    } else if let Some(tids) =
+                                        choice.get("token_ids").and_then(|t| t.as_array())
+                                    {
                                         for t in tids {
                                             if let Some(id) = t.as_u64() {
                                                 generated_token_ids.push(id as u32);
@@ -486,7 +491,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for engine in &engines {
         let engine_url = match engine.as_str() {
             "aien" => args.aien_url.clone(),
-            "max" => args.max_url.clone(),
             "vllm" => args.vllm_url.clone(),
             other => {
                 eprintln!("Unknown engine {}, skipping", other);
@@ -502,11 +506,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 engine,
                 engine_url
             );
-            match verify_engine_model(&client, &engine_url, &manifest.model_id, &manifest.model_revision).await {
+            match verify_engine_model(
+                &client,
+                &engine_url,
+                &manifest.model_id,
+                &manifest.model_revision,
+            )
+            .await
+            {
                 Ok(_) => println!("verified."),
                 Err(e) => {
                     eprintln!("FAILED: {}", e);
-                    eprintln!("Skipping engine {} due to model verification failure.", engine);
+                    eprintln!(
+                        "Skipping engine {} due to model verification failure.",
+                        engine
+                    );
                     continue;
                 }
             }
@@ -545,7 +559,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     while !mon_stop.load(Ordering::Relaxed) {
                         if let Some(p) = mon_pid {
-                            if let Some(snap) = aien_benchmarks::harness::smaps::read_process_tree_smaps(p) {
+                            if let Some(snap) =
+                                aien_benchmarks::harness::smaps::read_process_tree_smaps(p)
+                            {
                                 if snap.pss_mb() > peak_pss {
                                     peak_pss = snap.pss_mb();
                                 }
@@ -580,13 +596,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     tasks.push(tokio::spawn(async move {
                         execute_single_branch(
-                            b_client,
-                            b_url,
-                            b_model,
-                            b_prefix,
-                            branch,
-                            max_tok,
-                            b_barrier,
+                            b_client, b_url, b_model, b_prefix, branch, max_tok, b_barrier,
                         )
                         .await
                     }));
@@ -604,12 +614,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 // Stop memory sampler and extract measured peaks
                 stop_monitor.store(true, Ordering::Relaxed);
-                let (peak_pss, peak_rss, min_avail_kb) = monitor_task.await.unwrap_or((0.0, 0.0, 0));
+                let (peak_pss, peak_rss, min_avail_kb) =
+                    monitor_task.await.unwrap_or((0.0, 0.0, 0));
 
-                let trial_filename = format!(
-                    "trial-{}-{}-rep{}.jsonl",
-                    engine, n_branches, rep
-                );
+                let trial_filename = format!("trial-{}-{}-rep{}.jsonl", engine, n_branches, rep);
                 let trial_path = args.output_dir.join(&trial_filename);
                 let mut file = File::create(&trial_path)?;
                 for b in &branch_results {
@@ -685,7 +693,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let summary_path = args.output_dir.join("summary.json");
     let mut file = File::create(&summary_path)?;
     writeln!(file, "{}", serde_json::to_string_pretty(&all_summaries)?)?;
-    println!("Benchmark run complete. Summary saved to {}", summary_path.display());
+    println!(
+        "Benchmark run complete. Summary saved to {}",
+        summary_path.display()
+    );
 
     Ok(())
 }

@@ -136,10 +136,8 @@ def main():
 
     colors = {
         "AIEN (COW Paged KV)": "#10b981",
-        "Modular MAX": "#f59e0b",
         "vLLM": "#6366f1",
         "aien": "#10b981",
-        "max": "#f59e0b",
         "vllm": "#6366f1",
     }
 

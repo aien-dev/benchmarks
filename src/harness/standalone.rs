@@ -1,6 +1,5 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::path::Path;
 use std::process::{Child, Command};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -119,11 +118,7 @@ impl PythonBaselineServer {
         let port = listener.local_addr().map_err(|e| e.to_string())?.port();
         drop(listener);
 
-        let py_bin = if Path::new("/home/drakestapleton/max-env/bin/python").exists() {
-            "/home/drakestapleton/max-env/bin/python"
-        } else {
-            "python3"
-        };
+        let py_bin = "python3";
 
         let mut child = Command::new(py_bin)
             .arg(script_path)

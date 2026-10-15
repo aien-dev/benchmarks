@@ -166,8 +166,8 @@ pub fn measure_embedding_latency(
 pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
     let mut metrics = Vec::new();
 
-    // 1. Benchmark live primary LLM seat on port 18006 (Modular MAX on GB10 GPU)
-    println!("        Benchmarking live Modular MAX seat (port 18006, atlas-lightning-omni)...");
+    // 1. Benchmark the live local model seat on port 18006 (OpenAI-compatible, GB10 GPU)
+    println!("        Benchmarking live local model seat (port 18006, atlas-lightning-omni)...");
     let _ = measure_llm_streaming("127.0.0.1", 18006, "atlas-lightning-omni", "Warmup", 4);
     match measure_llm_streaming(
         "127.0.0.1",
@@ -178,14 +178,14 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
     ) {
         Ok(res) => {
             println!(
-                "        Modular MAX (GB10 GPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
+                "        Local model seat (GB10 GPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
                 res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
             );
             metrics.push(NeuralMetric {
                 measurement_id: Some("BENCH-LIVE-TTFT-GPU-001".to_string()),
                 workload: "First Token Latency (TTFT) - GPU Seat".to_string(),
                 model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
-                engine: "Modular MAX (Grace Blackwell GB10 GPU)".to_string(),
+                engine: "Local model seat (Grace Blackwell GB10 GPU)".to_string(),
                 p50_ms: res.ttft_ms,
                 p95_ms: res.ttft_ms,
             });
@@ -193,18 +193,20 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 measurement_id: Some("BENCH-LIVE-ITL-GPU-001".to_string()),
                 workload: "Inter-Token Latency (ITL) - GPU Seat".to_string(),
                 model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
-                engine: "Modular MAX (Grace Blackwell GB10 GPU)".to_string(),
+                engine: "Local model seat (Grace Blackwell GB10 GPU)".to_string(),
                 p50_ms: res.itl_p50_ms,
                 p95_ms: res.itl_p95_ms,
             });
         }
         Err(e) => {
-            println!("        [Notice] Modular MAX GPU seat (18006) skipped: {}", e);
+            println!("        [Notice] Local model seat (18006) skipped: {}", e);
         }
     }
 
-    // 2. Benchmark live fallback LLM seat on port 18082 (Modular MAX CPU)
-    println!("        Benchmarking live fallback seat (port 18082, unsloth/Llama-3.2-1B-Instruct)...");
+    // 2. Benchmark the live local fallback seat on port 18082 (OpenAI-compatible, CPU)
+    println!(
+        "        Benchmarking live fallback seat (port 18082, unsloth/Llama-3.2-1B-Instruct)..."
+    );
     let _ = measure_llm_streaming(
         "127.0.0.1",
         18082,
@@ -221,14 +223,14 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
     ) {
         Ok(res) => {
             println!(
-                "        Modular MAX (CPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
+                "        Local fallback seat (CPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
                 res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
             );
             metrics.push(NeuralMetric {
                 measurement_id: Some("BENCH-LIVE-TTFT-CPU-001".to_string()),
                 workload: "First Token Latency (TTFT) - CPU Fallback".to_string(),
                 model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
-                engine: "Modular MAX (Grace Neoverse CPU)".to_string(),
+                engine: "Local fallback seat (Grace Neoverse CPU)".to_string(),
                 p50_ms: res.ttft_ms,
                 p95_ms: res.ttft_ms,
             });
@@ -236,13 +238,16 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
                 measurement_id: Some("BENCH-LIVE-ITL-CPU-001".to_string()),
                 workload: "Inter-Token Latency (ITL) - CPU Fallback".to_string(),
                 model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
-                engine: "Modular MAX (Grace Neoverse CPU)".to_string(),
+                engine: "Local fallback seat (Grace Neoverse CPU)".to_string(),
                 p50_ms: res.itl_p50_ms,
                 p95_ms: res.itl_p95_ms,
             });
         }
         Err(e) => {
-            println!("        [Notice] Modular MAX CPU seat (18082) skipped: {}", e);
+            println!(
+                "        [Notice] Local fallback seat (18082) skipped: {}",
+                e
+            );
         }
     }
 

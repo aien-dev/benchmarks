@@ -32,7 +32,7 @@ The AIEN architecture enforces a strict Native Systems Priority: zero Python or 
 2. **Gateway Latency & Throughput**: Axum microservices deliver **sub-millisecond p50 TTFB (0.26ms to 0.50ms)** at **19,000 to 34,000 requests/second** under concurrent load (concurrency=10, 500 requests per endpoint).
 3. **Like-for-Like Microservice Speedup**: When executing identical JSON serialization, SQLite WAL queries, and 768-dimensional vector dot products, native Rust delivers a **3.7x to 7.7x latency reduction** and a **94.2% memory reduction** compared to CPython 3.12 + FastAPI.
 4. **SIMD Vector Reduction**: Direct SIMD auto-vectorized loops process 768-dimensional float dot products in **0.58 microseconds** per operation (over 1.7 million vector comparisons per second).
-5. **Live Neural Inference on Modular MAX**: Real-time streaming evaluations against the live active seat (`atlas-lightning-omni`, Nemotron 3.5 Lightning 30B on Grace Blackwell GB10 GPU) measure a Time to First Token (TTFT) of **426.9 ms** and an Inter-Token Latency (ITL) of **46.9 ms** (~21.3 tokens/second). The CPU fallback seat (`unsloth/Llama-3.2-1B-Instruct`) achieves **155.4 ms TTFT** and **88.8 ms ITL**.
+5. **Live Neural Inference (historical record, served by Modular MAX, which AIEN removed on 2026-10-15)**: Real-time streaming evaluations against the live active seat (`atlas-lightning-omni`, Nemotron 3.5 Lightning 30B on Grace Blackwell GB10 GPU) measure a Time to First Token (TTFT) of **426.9 ms** and an Inter-Token Latency (ITL) of **46.9 ms** (~21.3 tokens/second). The CPU fallback seat (`unsloth/Llama-3.2-1B-Instruct`) achieves **155.4 ms TTFT** and **88.8 ms ITL**.
 
 ---
 
@@ -89,7 +89,7 @@ Multi-threaded concurrency sweep (concurrency=10, 500 requests per endpoint on l
 
 TTFT rows come from single-sample runs, so their p50 and p95 are the same value and do not describe a distribution. For the SIMD row, the p50 is the mean time per iteration over 100,000 iterations, and the p95 is that value times 1.3 (`src/harness/mod.rs`), so it is not a measured percentile.
 
-Measured against live Modular MAX and ONNX serving instances on Grace Blackwell silicon:
+Measured against live Modular MAX and ONNX serving instances on Grace Blackwell silicon. Historical record: AIEN removed Modular MAX on 2026-10-15, and the harness now measures whatever OpenAI-compatible local model seat answers on ports 18006 and 18082. Outside yardsticks live in [aien-yardsticks](https://github.com/aien-dev/aien-yardsticks).
 
 | Workload | Model / Target | Execution Engine | p50 Latency | p95 Latency | Observed Speed |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -154,10 +154,10 @@ Every measurement and artifact in this repository comes from one machine, the NV
 
 | Platform Target | Primary Accelerators | Engine & Execution Path | Status in this repository |
 | :--- | :--- | :--- | :--- |
-| **macOS (Apple Silicon)** | M1 / M2 / M3 / M4 (Pro / Max / Ultra) | Metal via MAX / llama.cpp, native aarch64 Rust | Not measured here |
+| **macOS (Apple Silicon)** | M1 / M2 / M3 / M4 (Pro / Max / Ultra) | Metal via llama.cpp, native aarch64 Rust | Not measured here |
 | **Linux x86_64** | Intel / AMD CPUs, NVIDIA CUDA | glibc / musl native binaries, AVX-512 SIMD | Not measured here |
 | **AMD ROCm** | Radeon RX 7000 / Instinct MI300 | ROCm / HIP targets, native Rust gateway | Not measured here |
-| **NVIDIA DGX Spark** | Grace Blackwell GB10 / GB200 | Unified LPDDR5X, Modular MAX, NVFP4 | Measured here (GB10 only) |
+| **NVIDIA DGX Spark** | Grace Blackwell GB10 / GB200 | Unified LPDDR5X, NVFP4 | Measured here (GB10 only) |
 | **Sovereign Bare Metal** | Air-gapped on-prem servers | Hardware TPM 2.0 vault, zero cloud calls | Not measured here |
 
 This repository builds only its own benchmark crates (see below); it does not compile AIEN for other targets.
@@ -170,7 +170,7 @@ The benchmark repository contains the active measurement harness used to generat
 
 ### Before you build
 
-The main crate (`aien-benchmarks`) has path dependencies on five crates under `../canonical-branch-native-runtime/crates/`: `aien-platform`, `aien-platform-linux`, `aien-kv-cache`, `aien-scheduler` and `aien-inference-abi`. No repository of that name exists in the aien-dev organisation, so a fresh clone does not build (`cargo metadata` fails to load `aien-inference-abi`) until that sibling directory is provided. Crates with the same names are in `aien-sovereign-core` under `crates/`; this repository does not record whether they are the same code. The `prime-drag-race/` crate declares its own workspace and builds on its own.
+The main crate (`aien-benchmarks`) has path dependencies on five crates under `../canonical-branch-native-runtime/crates/`: `aien-platform`, `aien-platform-linux`, `aien-kv-cache`, `aien-scheduler` and `aien-inference-abi`. No repository of that name exists in the aien-dev organisation, so a fresh clone does not build (`cargo metadata` fails to load `aien-inference-abi`) until that sibling directory is provided. Crates with the same names are in `aien-sovereign-core` under `crates/`; this repository does not record whether they are the same code. The `prime-drag-race/` crate declares its own workspace and builds on its own. The committed `Cargo.lock` still names `spark-max-rs` and `spark-max-cabi` (the Modular MAX bridge, removed from AIEN on 2026-10-15) only because the sibling copy of `aien-scheduler` it was generated against depended on them; no code in this repository uses them.
 
 ### One-Command Measurement Sweep
 
@@ -183,7 +183,7 @@ cd benchmarks
 cargo run --release -- measure
 ```
 
-By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, overwriting the committed copies. Use `--output-json` and `--output-assets` to write elsewhere. `--skip-standalone` skips steps 2 and 3 below, and `--skip-live` skips the live-service part of step 4. Step 5 always runs and reports a notice for any Modular MAX port that does not answer.
+By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, overwriting the committed copies. Use `--output-json` and `--output-assets` to write elsewhere. `--skip-standalone` skips steps 2 and 3 below, and `--skip-live` skips the live-service part of step 4. Step 5 always runs and reports a notice for any local model seat port that does not answer.
 
 ### What the Measurement Harness Does Automatically
 
@@ -191,7 +191,7 @@ By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, ov
 2. **Ephemeral Microservice Orchestration**: Spawns both the native compiled Rust server and the CPython 3.12 + FastAPI baseline server (`harness/python_baseline.py`, which falls back to the standard library HTTP server when FastAPI is not installed) on dynamic ephemeral ports.
 3. **Concurrency Stress Testing**: Executes multi-threaded HTTP load sweeps across identical endpoints (`/api/status`, `/api/query`, `/api/vector`) measuring exact microsecond latency distributions (p50, p95, p99, min, max) and request throughput.
 4. **OS Memory Telemetry**: Inspects process Resident Set Size (RSS) directly from `/proc/[pid]/status` (`VmRSS`) across both the spawned Python baseline process and live sovereign background services. If the Python baseline cannot start, a default 40.0 MB baseline RSS is recorded instead of a measurement.
-5. **Live Neural Inference Benchmarking**: Streams generation requests to active Modular MAX ports (18006 and 18082), measuring real TTFT, ITL, and tokens per second.
+5. **Live Neural Inference Benchmarking**: Streams generation requests to the OpenAI-compatible local model seats on ports 18006 and 18082, measuring real TTFT, ITL, and tokens per second.
 6. **SIMD Vector Benchmark**: Runs 100,000 iterations of 768-dimensional vector dot products to measure raw vector throughput and per-operation latency.
 7. **Dataset & Asset Regeneration**: Automatically updates the structured JSON dataset (`data/benchmarks_latest.json`) and re-renders SVG comparison charts (`assets/*.svg`).
 

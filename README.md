@@ -203,6 +203,19 @@ cargo test --verbose
 
 ---
 
+## Evidence integrity
+
+New structured benchmark records follow the `aien-bench-record/1` contract (source commit and dirty flag, build, workload, hardware, backend, methodology with one definition per metric, metrics, evidence paths, limitations) and live as JSON files under `records/`; the older run bundles under `artifacts/` keep their own format and are checked against their `SHA256SUMS`, never rewritten. `cargo run --release --bin bench_verify_records` (default paths `records` and `artifacts`) checks them offline and prints one `path: field: reason` line per defect: placeholder values, short commit ids, missing evidence files and percentiles from too few samples are all rejected. `cargo run --release --bin bench_index` regenerates [docs/PERF_INDEX.md](docs/PERF_INDEX.md), a list of records, sources, studies and issue links copied from the files; it is not an authority. Status words:
+
+- **VERIFIED**: measured from a clean committed build, with evidence files in this repository that anyone can re-check.
+- **EXPERIMENTAL**: a real measurement that has not been qualified yet; not a claim.
+- **HISTORICAL**: kept as a record of what an earlier run wrote; not a current claim. Fields that run did not record say `not_recorded` and are named in its limitations.
+- **NOT_RUN**: a required measurement that has not been performed; it carries no numbers and no evidence.
+- **FAIL**: the run happened and did not meet its acceptance check; kept as evidence.
+- **SUPERSEDED**: replaced by a newer record.
+
+---
+
 ## Ecosystem Integration
 
 - **Primary Repository**: [github.com/aien-spark/aien-dev](https://github.com/aien-spark/aien-dev)

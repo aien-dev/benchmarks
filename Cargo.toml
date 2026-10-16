@@ -5,6 +5,8 @@ edition = "2021"
 authors = ["Drake Stapleton <aien@aienos.com>"]
 description = "Sovereign Systems Benchmark Suite: reproducible performance comparisons on NVIDIA DGX Spark Grace Blackwell"
 license = "AGPL-3.0-or-later"
+# `cargo run -- <command>` (the gates and README) means the main CLI; without this, cargo cannot
+# pick among the several binaries below and those commands fail.
 default-run = "aien-benchmarks"
 
 [dependencies]
@@ -34,3 +36,11 @@ path = "src/bin/bench_branching_neutral.rs"
 [[bin]]
 name = "bench_canonical_suite"
 path = "src/bin/bench_canonical_suite.rs"
+
+[[bin]]
+name = "bench_verify_records"
+path = "src/bin/bench_verify_records.rs"
+
+[[bin]]
+name = "bench_index"
+path = "src/bin/bench_index.rs"

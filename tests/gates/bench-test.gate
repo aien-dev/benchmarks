@@ -1,5 +1,7 @@
 # tests/gates/bench-test.gate
 # Mirrors hosted: .forgejo/workflows/ci.yml and GitHub ci.yml (manual dispatch) 'cargo test --verbose' (hosted job 28 s total)
+# Inputs include all of tests/ and every path the integration tests read (evidence fixtures,
+# artifacts/, and the docs/PERF_INDEX.md generator inputs).
 gate: BENCH-TEST
 manifest_version: 2
 owner: benchmarks
@@ -11,7 +13,11 @@ inputs:
   - src/
   - data/
   - manifests/
-  - tests/gates/
+  - records/
+  - artifacts/
+  - docs/
+  - prime-drag-race/
+  - tests/
 run:
   exec: tests/gates/run.sh
   args: ["test"]

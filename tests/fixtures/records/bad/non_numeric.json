@@ -1,0 +1,51 @@
+{
+  "schema": "aien-bench-record/1",
+  "status": "HISTORICAL",
+  "source": {
+    "repo": "aien-spark/benchmarks",
+    "commit": "dfd5ea9d14230e462de32cf96908a202a1c7983d",
+    "dirty": "not_recorded"
+  },
+  "build": {
+    "profile": "not_recorded",
+    "rustc": "not_recorded"
+  },
+  "workload": {
+    "name": "branch_cold",
+    "prefix_tokens": "32768"
+  },
+  "hardware": {
+    "host": "spark-b87b",
+    "cpu": "aarch64 Neoverse V2",
+    "gpu": "NVIDIA GB10 sm_121"
+  },
+  "backend": {
+    "engine": "canonical-branch-native-runtime 7bf8a7d4e3bd9f271485d2703ec90378437f9bc6",
+    "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+    "precision": "unlabeled",
+    "endpoint": "not_recorded"
+  },
+  "methodology": {
+    "clock": "not_recorded",
+    "definitions": {
+      "cold_fork_to_first_token_ms": "field cold_fork_to_first_token_ms of branch_cold.json as written by the 2026-09-20 run; the run did not record how it was measured",
+      "physical_cow_pages_allocated": "field physical_cow_pages_allocated of branch_cold.json as written by the 2026-09-20 run"
+    },
+    "token_accounting": "not_recorded",
+    "samples": "not_recorded"
+  },
+  "metrics": {
+    "cold_fork_to_first_token_ms": 0.013040000000000001,
+    "physical_cow_pages_allocated": "1"
+  },
+  "evidence": [
+    "artifacts/gb10_canonical_1789907893_4d762/branch_cold.json",
+    "artifacts/gb10_canonical_1789907893_4d762/manifest.json"
+  ],
+  "limitations": [
+    "Validator fixture: a transcription of the pre-contract bundle gb10_canonical_1789907893_4d762 (2026-09-20), not a new measurement and not a current claim.",
+    "Values come from the bundle's branch_cold.json (metrics, prefix_tokens), manifest.json (commit, host from os_kernel, cpu_architecture, gpu_device, runtime_git_sha) and summary.json (model_id).",
+    "source.dirty, build.profile, build.rustc, backend.endpoint, methodology.clock, methodology.token_accounting and methodology.samples: the 2026-09-20 run did not record them.",
+    "backend.precision is unlabeled because the bundle does not name a precision."
+  ]
+}

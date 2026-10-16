@@ -42,6 +42,22 @@ enum Commands {
 
         #[arg(long)]
         skip_live: bool,
+
+        /// Skip the streaming LLM endpoint
+        #[arg(long)]
+        skip_llm: bool,
+
+        #[command(flatten)]
+        llm: LlmArgs,
+    },
+    /// Measure one streaming LLM endpoint and write an aien-bench-record/1 JSON record plus raw samples
+    LlmStream {
+        #[command(flatten)]
+        llm: LlmArgs,
+
+        /// Directory for the record and its samples file (relative to the working directory)
+        #[arg(long, default_value = "records")]
+        out_dir: String,
     },
     /// Render SVG charts to assets/ directory
     Generate {
@@ -62,6 +78,83 @@ enum Commands {
         #[arg(long)]
         check: bool,
     },
+}
+
+/// Streaming LLM endpoint settings (shared by `measure` and `llm-stream`). Defaults are the
+/// endpoint and model id the old hardcoded harness used; engine and precision default to
+/// "unlabeled" so a record never claims hardware or numerics nobody stated.
+#[derive(clap::Args, Clone, Debug)]
+struct LlmArgs {
+    /// Endpoint host
+    #[arg(long, default_value = "127.0.0.1")]
+    llm_host: String,
+    /// Endpoint port
+    #[arg(long, default_value_t = 18006)]
+    llm_port: u16,
+    /// Request path (OpenAI-compatible chat completions)
+    #[arg(long, default_value = "/v1/chat/completions")]
+    llm_path: String,
+    /// Model id sent in the request and reported in the record
+    #[arg(long, default_value = "atlas-lightning-omni")]
+    llm_model: String,
+    /// Engine label reported in the record (what serves the endpoint)
+    #[arg(long, default_value = "unlabeled")]
+    llm_engine: String,
+    /// Precision label reported in the record (for example BF16); "unlabeled" when omitted
+    #[arg(long)]
+    llm_precision: Option<String>,
+    /// Context length label reported in the record (tokens)
+    #[arg(long)]
+    llm_context_length: Option<u64>,
+    /// max_tokens sent in each request
+    #[arg(long, default_value_t = 20)]
+    llm_max_tokens: u32,
+    /// Prompt sent as the single user message
+    #[arg(
+        long,
+        default_value = "Explain unified memory architecture in ten words."
+    )]
+    llm_prompt: String,
+    /// Measured requests (N); p95 is reported only when at least 20 succeed
+    #[arg(long, default_value_t = 1)]
+    llm_requests: u32,
+    /// Requests in flight at once
+    #[arg(long, default_value_t = 1)]
+    llm_concurrency: u32,
+    /// Warmup requests run first and discarded
+    #[arg(long, default_value_t = 1)]
+    llm_warmup: u32,
+    /// Do not send stream_options.include_usage
+    #[arg(long)]
+    llm_no_usage_request: bool,
+    /// TCP connect timeout in seconds
+    #[arg(long, default_value_t = 5)]
+    llm_connect_timeout_secs: u64,
+    /// Longest wait for any single socket read, in seconds (a timeout fails the request)
+    #[arg(long, default_value_t = 20)]
+    llm_read_timeout_secs: u64,
+}
+
+impl LlmArgs {
+    fn to_config(&self) -> harness::llm_stream::StreamConfig {
+        harness::llm_stream::StreamConfig {
+            host: self.llm_host.clone(),
+            port: self.llm_port,
+            path: self.llm_path.clone(),
+            model: self.llm_model.clone(),
+            engine: self.llm_engine.clone(),
+            precision: self.llm_precision.clone(),
+            context_length: self.llm_context_length,
+            max_tokens: self.llm_max_tokens,
+            prompt: self.llm_prompt.clone(),
+            requests: self.llm_requests,
+            concurrency: self.llm_concurrency,
+            warmup: self.llm_warmup,
+            request_usage: !self.llm_no_usage_request,
+            connect_timeout: std::time::Duration::from_secs(self.llm_connect_timeout_secs),
+            read_timeout: std::time::Duration::from_secs(self.llm_read_timeout_secs),
+        }
+    }
 }
 
 fn load_data(path: &str) -> BenchmarkData {
@@ -164,10 +257,10 @@ fn print_report(data: &BenchmarkData) {
         } else {
             format!("{:.2}", n.p50_ms)
         };
-        let p95_str = if n.p95_ms < 0.01 {
-            format!("{:.4}", n.p95_ms)
-        } else {
-            format!("{:.2}", n.p95_ms)
+        let p95_str = match n.p95_ms {
+            None => "n/a".to_string(),
+            Some(v) if v < 0.01 => format!("{:.4}", v),
+            Some(v) => format!("{:.2}", v),
         };
         println!(
             "{:<42} | {:<32} | {:>10} | {:>10}",
@@ -189,6 +282,8 @@ fn main() {
             output_assets,
             skip_standalone,
             skip_live,
+            skip_llm,
+            llm,
         } => {
             let config = harness::MeasurementConfig {
                 concurrency,
@@ -196,6 +291,7 @@ fn main() {
                 warmup,
                 skip_standalone,
                 skip_live,
+                llm: (!skip_llm).then(|| llm.to_config()),
             };
 
             let data = match harness::run_measurement_suite(config) {
@@ -209,6 +305,40 @@ fn main() {
             print_report(&data);
             save_data(&output_json, &data);
             render_all_svgs(&data, &output_assets);
+        }
+        Commands::LlmStream { llm, out_dir } => {
+            use harness::llm_stream;
+            let cfg = llm.to_config();
+            // Fail before measuring if the run cannot be bound to a commit.
+            let source = match llm_stream::source_identity() {
+                Ok(s) => s,
+                Err(e) => {
+                    eprintln!("llm-stream: {}; refusing to write an unbound record", e);
+                    std::process::exit(1);
+                }
+            };
+            println!(
+                "Streaming benchmark: {} (model {}, engine {}), {} request(s), concurrency {}, warmup {}",
+                cfg.endpoint(),
+                cfg.model,
+                cfg.engine,
+                cfg.requests,
+                cfg.concurrency,
+                cfg.warmup
+            );
+            let run = llm_stream::run_stream_benchmark(&cfg);
+            let summary = llm_stream::summarize(&run.samples, run.wall);
+            harness::inference_bench::print_stream_summary(&summary);
+            match llm_stream::write_run(Path::new(&out_dir), &cfg, &run, &summary, &source) {
+                Ok(path) => println!("record: {}", path.display()),
+                Err(e) => {
+                    eprintln!("llm-stream: {}", e);
+                    std::process::exit(1);
+                }
+            }
+            if summary.requests_ok == 0 {
+                std::process::exit(2);
+            }
         }
         Commands::Report => {
             let data = load_data(&cli.input);

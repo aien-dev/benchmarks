@@ -1,122 +1,15 @@
+use super::llm_stream::{self, distribution, Distribution, StreamConfig, TokenAccounting};
 use crate::models::NeuralMetric;
 use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::time::{Duration, Instant};
-
-#[derive(Debug, Clone, Default)]
-pub struct StreamBenchmarkResult {
-    pub ttft_ms: f64,
-    pub itl_p50_ms: f64,
-    #[allow(dead_code)]
-    pub itl_p95_ms: f64,
-    #[allow(dead_code)]
-    pub total_tokens: usize,
-    pub tokens_per_sec: f64,
-}
-
-pub fn measure_llm_streaming(
-    host: &str,
-    port: u16,
-    model_name: &str,
-    prompt: &str,
-    max_tokens: usize,
-) -> Result<StreamBenchmarkResult, String> {
-    let addr = format!("{}:{}", host, port);
-    let mut stream =
-        TcpStream::connect(&addr).map_err(|e| format!("Connect to {} failed: {}", addr, e))?;
-    stream
-        .set_read_timeout(Some(Duration::from_secs(20)))
-        .map_err(|e| e.to_string())?;
-    stream
-        .set_write_timeout(Some(Duration::from_secs(5)))
-        .map_err(|e| e.to_string())?;
-
-    let body = format!(
-        r#"{{"model":"{}","messages":[{{"role":"user","content":"{}"}}],"max_tokens":{},"stream":true}}"#,
-        model_name, prompt, max_tokens
-    );
-
-    let req = format!(
-        "POST /v1/chat/completions HTTP/1.1\r\nHost: {}:{}\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}",
-        host, port, body.len(), body
-    );
-
-    let t0 = Instant::now();
-    stream
-        .write_all(req.as_bytes())
-        .map_err(|e| format!("Write error: {}", e))?;
-
-    let mut buf = [0u8; 4096];
-    let mut accumulated = Vec::new();
-    let mut ttft_opt: Option<f64> = None;
-    let mut itl_samples = Vec::new();
-    let mut last_token_time = Instant::now();
-    let mut total_tokens = 0;
-
-    loop {
-        let n = match stream.read(&mut buf) {
-            Ok(0) => break,
-            Ok(n) => n,
-            Err(_) => break,
-        };
-        let now = Instant::now();
-        accumulated.extend_from_slice(&buf[..n]);
-
-        while let Some(pos) = accumulated.windows(2).position(|w| w == b"\n\n") {
-            let part = accumulated.drain(..pos + 2).collect::<Vec<u8>>();
-            let text = String::from_utf8_lossy(&part);
-            for line in text.lines() {
-                let trimmed = line.trim();
-                if trimmed.starts_with("data: ") && !trimmed.starts_with("data: [DONE]") {
-                    total_tokens += 1;
-                    if ttft_opt.is_none() {
-                        ttft_opt = Some(t0.elapsed().as_secs_f64() * 1000.0);
-                        last_token_time = now;
-                    } else {
-                        let itl = now.duration_since(last_token_time).as_secs_f64() * 1000.0;
-                        itl_samples.push(itl);
-                        last_token_time = now;
-                    }
-                }
-            }
-        }
-    }
-
-    let ttft = ttft_opt.ok_or_else(|| "No tokens received from LLM endpoint".to_string())?;
-    let total_elapsed = t0.elapsed().as_secs_f64();
-    let tokens_per_sec = if total_elapsed > 0.0 {
-        total_tokens as f64 / total_elapsed
-    } else {
-        0.0
-    };
-
-    itl_samples.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-    let itl_p50 = if itl_samples.is_empty() {
-        0.0
-    } else {
-        itl_samples[itl_samples.len() * 50 / 100]
-    };
-    let itl_p95 = if itl_samples.is_empty() {
-        0.0
-    } else {
-        itl_samples[itl_samples.len() * 95 / 100]
-    };
-
-    Ok(StreamBenchmarkResult {
-        ttft_ms: ttft,
-        itl_p50_ms: itl_p50,
-        itl_p95_ms: itl_p95,
-        total_tokens,
-        tokens_per_sec,
-    })
-}
 
 pub fn measure_embedding_latency(
     host: &str,
     port: u16,
     text: &str,
     iterations: usize,
-) -> Result<(f64, f64), String> {
+) -> Result<Distribution, String> {
     let mut latencies = Vec::with_capacity(iterations);
     let body = format!(r#"{{"text":"{}"}}"#, text);
 
@@ -157,101 +50,62 @@ pub fn measure_embedding_latency(
         return Err("No successful embedding responses".to_string());
     }
 
-    latencies.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
-    let p50 = latencies[latencies.len() * 50 / 100];
-    let p95 = latencies[latencies.len() * 95 / 100];
-    Ok((p50, p95))
+    Ok(distribution(&latencies))
 }
 
-pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
+/// Live neural rows for the measurement sweep: the configured streaming endpoint (if any)
+/// and the embedding service. Labels come from the configuration, never from constants.
+pub fn run_neural_inference_benchmarks(llm: Option<&StreamConfig>) -> Vec<NeuralMetric> {
     let mut metrics = Vec::new();
 
-    // 1. Benchmark the live local model seat on port 18006 (OpenAI-compatible, GB10 GPU)
-    println!("        Benchmarking live local model seat (port 18006, atlas-lightning-omni)...");
-    let _ = measure_llm_streaming("127.0.0.1", 18006, "atlas-lightning-omni", "Warmup", 4);
-    match measure_llm_streaming(
-        "127.0.0.1",
-        18006,
-        "atlas-lightning-omni",
-        "Explain unified memory architecture in ten words.",
-        20,
-    ) {
-        Ok(res) => {
-            println!(
-                "        Local model seat (GB10 GPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
-                res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
-            );
+    if let Some(cfg) = llm {
+        println!(
+            "        Benchmarking streaming endpoint {} (model {}, engine {}, {} request(s), concurrency {})...",
+            cfg.endpoint(),
+            cfg.model,
+            cfg.engine,
+            cfg.requests,
+            cfg.concurrency
+        );
+        let run = llm_stream::run_stream_benchmark(cfg);
+        let s = llm_stream::summarize(&run.samples, run.wall);
+        print_stream_summary(&s);
+        if s.requests_ok > 0 {
             metrics.push(NeuralMetric {
-                measurement_id: Some("BENCH-LIVE-TTFT-GPU-001".to_string()),
-                workload: "First Token Latency (TTFT) - GPU Seat".to_string(),
-                model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
-                engine: "Local model seat (Grace Blackwell GB10 GPU)".to_string(),
-                p50_ms: res.ttft_ms,
-                p95_ms: res.ttft_ms,
+                measurement_id: Some("BENCH-LIVE-TTFT-001".to_string()),
+                workload: format!("First content event latency (TTFT), N={}", s.ttft.samples),
+                model: cfg.model.clone(),
+                engine: cfg.engine.clone(),
+                p50_ms: s.ttft.p50.unwrap_or_default(),
+                p95_ms: s.ttft.p95,
             });
-            metrics.push(NeuralMetric {
-                measurement_id: Some("BENCH-LIVE-ITL-GPU-001".to_string()),
-                workload: "Inter-Token Latency (ITL) - GPU Seat".to_string(),
-                model: "Nemotron 3.5 Lightning 30B (BF16)".to_string(),
-                engine: "Local model seat (Grace Blackwell GB10 GPU)".to_string(),
-                p50_ms: res.itl_p50_ms,
-                p95_ms: res.itl_p95_ms,
-            });
-        }
-        Err(e) => {
-            println!("        [Notice] Local model seat (18006) skipped: {}", e);
-        }
-    }
-
-    // 2. Benchmark the live local fallback seat on port 18082 (OpenAI-compatible, CPU)
-    println!(
-        "        Benchmarking live fallback seat (port 18082, unsloth/Llama-3.2-1B-Instruct)..."
-    );
-    let _ = measure_llm_streaming(
-        "127.0.0.1",
-        18082,
-        "unsloth/Llama-3.2-1B-Instruct",
-        "Warmup",
-        4,
-    );
-    match measure_llm_streaming(
-        "127.0.0.1",
-        18082,
-        "unsloth/Llama-3.2-1B-Instruct",
-        "Explain unified memory architecture in ten words.",
-        20,
-    ) {
-        Ok(res) => {
-            println!(
-                "        Local fallback seat (CPU): TTFT {:.2} ms | ITL p50 {:.2} ms | Tok/s {:.1}",
-                res.ttft_ms, res.itl_p50_ms, res.tokens_per_sec
-            );
-            metrics.push(NeuralMetric {
-                measurement_id: Some("BENCH-LIVE-TTFT-CPU-001".to_string()),
-                workload: "First Token Latency (TTFT) - CPU Fallback".to_string(),
-                model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
-                engine: "Local fallback seat (Grace Neoverse CPU)".to_string(),
-                p50_ms: res.ttft_ms,
-                p95_ms: res.ttft_ms,
-            });
-            metrics.push(NeuralMetric {
-                measurement_id: Some("BENCH-LIVE-ITL-CPU-001".to_string()),
-                workload: "Inter-Token Latency (ITL) - CPU Fallback".to_string(),
-                model: "Llama 3.2 1B Instruct (Q4_K)".to_string(),
-                engine: "Local fallback seat (Grace Neoverse CPU)".to_string(),
-                p50_ms: res.itl_p50_ms,
-                p95_ms: res.itl_p95_ms,
-            });
-        }
-        Err(e) => {
-            println!(
-                "        [Notice] Local fallback seat (18082) skipped: {}",
-                e
-            );
+            if let Some(p50) = s.inter_event.p50 {
+                metrics.push(NeuralMetric {
+                    measurement_id: Some("BENCH-LIVE-INTER-EVENT-001".to_string()),
+                    workload: format!(
+                        "Inter-event latency (SSE events, not tokens), N={}",
+                        s.inter_event.samples
+                    ),
+                    model: cfg.model.clone(),
+                    engine: cfg.engine.clone(),
+                    p50_ms: p50,
+                    p95_ms: s.inter_event.p95,
+                });
+            }
+            if let Some(tpot) = s.tpot.as_ref().filter(|d| d.p50.is_some()) {
+                metrics.push(NeuralMetric {
+                    measurement_id: Some("BENCH-LIVE-TPOT-001".to_string()),
+                    workload: format!("Time per output token (backend usage), N={}", tpot.samples),
+                    model: cfg.model.clone(),
+                    engine: cfg.engine.clone(),
+                    p50_ms: tpot.p50.unwrap_or_default(),
+                    p95_ms: tpot.p95,
+                });
+            }
         }
     }
 
-    // 3. Benchmark live embedding service on port 18081 (cortex-encoder-rs ONNX)
+    // Embedding service on port 18081 (cortex-encoder-rs ONNX); unchanged target.
     println!("        Benchmarking live embedding service (port 18081, BGE-base-en-v1.5 INT8)...");
     match measure_embedding_latency(
         "127.0.0.1",
@@ -259,18 +113,20 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
         "The sovereign architecture achieves deterministic low-latency execution on Grace Blackwell.",
         10,
     ) {
-        Ok((p50, p95)) => {
+        Ok(d) => {
             println!(
-                "        cortex-encoder-rs (ONNX INT8): p50 {:.2} ms | p95 {:.2} ms",
-                p50, p95
+                "        cortex-encoder-rs (ONNX INT8): p50 {:.2} ms | p95 {} | N={}",
+                d.p50.unwrap_or_default(),
+                fmt_opt_ms(d.p95),
+                d.samples
             );
             metrics.push(NeuralMetric {
                 measurement_id: Some("BENCH-LIVE-EMBED-001".to_string()),
-                workload: "Bi-Encoder Vector Embedding".to_string(),
+                workload: format!("Bi-Encoder Vector Embedding, N={}", d.samples),
                 model: "BAAI/bge-base-en-v1.5 (INT8)".to_string(),
                 engine: "cortex-encoder-rs (ONNX Runtime)".to_string(),
-                p50_ms: p50,
-                p95_ms: p95,
+                p50_ms: d.p50.unwrap_or_default(),
+                p95_ms: d.p95,
             });
         }
         Err(e) => {
@@ -279,4 +135,58 @@ pub fn run_neural_inference_benchmarks() -> Vec<NeuralMetric> {
     }
 
     metrics
+}
+
+pub fn fmt_opt_ms(v: Option<f64>) -> String {
+    v.map(|x| format!("{:.2} ms", x))
+        .unwrap_or_else(|| "n/a (too few samples)".to_string())
+}
+
+/// Terminal summary; under events_not_tokens it never prints tokens per second.
+pub fn print_stream_summary(s: &llm_stream::StreamSummary) {
+    println!(
+        "        requests ok {}/{} | wall {:.1} ms | token accounting: {}",
+        s.requests_ok,
+        s.requests_attempted,
+        s.wall_ms,
+        s.token_accounting.as_str()
+    );
+    for (kind, n) in &s.failures {
+        println!("        failed: {} x {}", n, kind);
+    }
+    if s.requests_ok == 0 {
+        return;
+    }
+    println!(
+        "        TTFT p50 {} | p95 {} | N={}",
+        fmt_opt_ms(s.ttft.p50),
+        fmt_opt_ms(s.ttft.p95),
+        s.ttft.samples
+    );
+    println!(
+        "        inter-event (events, not tokens) p50 {} | p95 {} | N={} | coalesced in one read: {}",
+        fmt_opt_ms(s.inter_event.p50),
+        fmt_opt_ms(s.inter_event.p95),
+        s.inter_event.samples,
+        s.events_coalesced_in_read
+    );
+    if let Some(eps) = s.events_per_sec {
+        println!("        content events/s: {:.1}", eps);
+    }
+    if s.token_accounting == TokenAccounting::BackendUsage {
+        if let (Some(total), Some(tps)) = (s.output_tokens_total, s.output_tokens_per_sec) {
+            println!(
+                "        backend usage: {} output tokens, {:.1} output tokens/s",
+                total, tps
+            );
+        }
+        if let Some(t) = &s.tpot {
+            println!(
+                "        time per output token p50 {} | p95 {} | N={}",
+                fmt_opt_ms(t.p50),
+                fmt_opt_ms(t.p95),
+                t.samples
+            );
+        }
+    }
 }

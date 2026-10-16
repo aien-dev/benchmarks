@@ -80,7 +80,9 @@ pub struct NeuralMetric {
     pub model: String,
     pub engine: String,
     pub p50_ms: f64,
-    pub p95_ms: f64,
+    /// Absent when too few observations exist for a real p95 (see llm_stream::P95_MIN_SAMPLES).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub p95_ms: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]

@@ -1,5 +1,5 @@
 # tests/gates/bench-fmt.gate
-# Mirrors hosted: .forgejo/workflows/ci.yml 'cargo fmt --all -- --check' (needs sibling ../canonical-branch-native-runtime)
+# Mirrors hosted: .forgejo/workflows/ci.yml cargo fmt -p aien-benchmarks -- --check (this repo only; the sibling runtime has its own fmt gate)
 gate: BENCH-FMT
 manifest_version: 2
 owner: benchmarks

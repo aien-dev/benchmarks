@@ -14,7 +14,6 @@
   },
   "environment": {
     "rustc_version": "rustc 1.98.1 (48a229cea 2026-09-01)",
-    "python_version": "Python 3.12.3",
     "kernel_version": "7.0.0-1019-nvidia",
     "page_size_kb": 4,
     "concurrency_tested": 10,
@@ -23,65 +22,35 @@
   },
   "memory_rss": [
     {
-      "measurement_id": "BENCH-FASTAPI-RSS-001",
-      "service": "python-fastapi-baseline",
-      "role": "Python Microservice Baseline",
-      "architecture": "Python 3.12 + FastAPI + Uvicorn",
-      "rss_mb": 44.7578125,
-      "baseline_rss_mb": 44.7578125,
-      "reduction_pct": 0.0
-    },
-    {
       "measurement_id": "BENCH-OPENCLAW-RSS-001",
       "service": "openclaw-rs",
       "role": "Sovereign Gateway & Heartbeat",
       "architecture": "Native Rust (Grace Blackwell)",
-      "rss_mb": 4.5625,
-      "baseline_rss_mb": 44.7578125,
-      "reduction_pct": 89.80624890905918
+      "rss_mb": 4.5625
     },
     {
       "measurement_id": "BENCH-CORTEX-RSS-001",
       "service": "cortex-rs",
       "role": "Canonical Memory Engine",
       "architecture": "Native Rust + SQLite WAL",
-      "rss_mb": 18.6640625,
-      "baseline_rss_mb": 44.7578125,
-      "reduction_pct": 58.29987781462733
+      "rss_mb": 18.6640625
     },
     {
       "measurement_id": "BENCH-COCKPIT-RSS-001",
       "service": "spark-cockpit-rs",
       "role": "Real-time Telemetry Cockpit",
       "architecture": "Native Rust + Axum",
-      "rss_mb": 12.8984375,
-      "baseline_rss_mb": 44.7578125,
-      "reduction_pct": 71.18170710420667
+      "rss_mb": 12.8984375
     },
     {
       "measurement_id": "BENCH-ENCODER-RSS-001",
       "service": "cortex-encoder-rs",
       "role": "Neural Embedding Microservice",
       "architecture": "Rust + ONNX Runtime (BGE-M3)",
-      "rss_mb": 777.4296875,
-      "baseline_rss_mb": 44.7578125,
-      "reduction_pct": -1636.9698027578984
+      "rss_mb": 777.4296875
     }
   ],
   "latency_concurrency": [
-    {
-      "measurement_id": "BENCH-FASTAPI-LATENCY-001",
-      "service": "python-fastapi-baseline",
-      "endpoint": "/api/status",
-      "description": "Python FastAPI Baseline Ping",
-      "engine": "CPython 3.12 + Uvicorn",
-      "requests_per_sec": 7251.634456767662,
-      "p50_ms": 1.279927,
-      "p95_ms": 1.8760649999999999,
-      "p99_ms": 2.845506,
-      "concurrency": 10,
-      "sample_size": 500
-    },
     {
       "measurement_id": "BENCH-CORTEX-LATENCY-001",
       "service": "cortex-rs",
@@ -120,53 +89,6 @@
       "p99_ms": 0.39714299999999997,
       "concurrency": 10,
       "sample_size": 500
-    }
-  ],
-  "like_for_like": [
-    {
-      "measurement_id": "BENCH-LFL-STATUS-001",
-      "category": "HTTP Microservice",
-      "workload": "Minimal JSON Status Ping (/api/status)",
-      "rust_engine": "Rust Standalone (Native Compiled)",
-      "rust_p50_ms": 0.348902,
-      "rust_throughput_req_s": 13774.094058550038,
-      "rust_rss_mb": 2.57421875,
-      "python_engine": "Python 3.12 + FastAPI / Uvicorn",
-      "python_p50_ms": 1.279927,
-      "python_throughput_req_s": 7251.634456767662,
-      "python_rss_mb": 44.7578125,
-      "speedup_factor": 3.6684427145731466,
-      "memory_reduction_pct": 94.24855995810788
-    },
-    {
-      "measurement_id": "BENCH-LFL-QUERY-001",
-      "category": "Database & Serialization",
-      "workload": "Single Entity Query & JSON Serialization (/api/query)",
-      "rust_engine": "Rust Standalone (Native Compiled)",
-      "rust_p50_ms": 0.37095100000000003,
-      "rust_throughput_req_s": 13202.57537884988,
-      "rust_rss_mb": 2.57421875,
-      "python_engine": "Python + SQLite3 stdlib",
-      "python_p50_ms": 2.8422899999999998,
-      "python_throughput_req_s": 3127.750954706882,
-      "python_rss_mb": 44.7578125,
-      "speedup_factor": 7.662171014500566,
-      "memory_reduction_pct": 94.24855995810788
-    },
-    {
-      "measurement_id": "BENCH-LFL-VECTOR-001",
-      "category": "Vector & SIMD Compute",
-      "workload": "768-dimensional Vector Dot Product (/api/vector)",
-      "rust_engine": "Rust SIMD Vector Loop",
-      "rust_p50_ms": 0.230292,
-      "rust_throughput_req_s": 16824.226104947033,
-      "rust_rss_mb": 2.57421875,
-      "python_engine": "Python List Comprehension",
-      "python_p50_ms": 1.582107,
-      "python_throughput_req_s": 6130.43671342972,
-      "python_rss_mb": 44.7578125,
-      "speedup_factor": 6.870004168620707,
-      "memory_reduction_pct": 94.24855995810788
     }
   ],
   "neural_inference": [

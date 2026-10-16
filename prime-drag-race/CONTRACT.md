@@ -3,6 +3,11 @@
 This contract is frozen. Any change to a rule below is a new contract version.
 The runner in this directory enforces it. Contract version string: `1`.
 
+Amendment of 2026-10-15: the CUDA yardstick class and the CUDA mirror label were removed. AIEN does
+not compare itself with other people's systems: speed is measured against the machine's physical
+limit, and correctness against our own reference. The rules the runner enforces did not change, so
+the contract version string stays `1`.
+
 ## What is measured
 
 Sieve all primes up to a limit (default 1,000,000), over and over, for at least a minimum time
@@ -54,7 +59,6 @@ line or report differs from the declaration or from each other. Known declaratio
 
 - `cpu-c-base`: algorithm=base, faithful=yes, bits=1, threads=1.
 - `gb10-native`: algorithm=other, faithful=no, bits=1, threads = launched GPU threads.
-- CUDA mirror: same labels as gb10-native.
 
 ## Timing rules
 
@@ -100,8 +104,7 @@ Results are only comparable inside one class:
 
 1. Host CPU (`linux-host-cpu`).
 2. Linux-hosted GB10, native AIEN path (`linux-hosted-gb10-native`).
-3. Linux-hosted GB10, CUDA yardstick (`linux-hosted-gb10-cuda`). A yardstick outside AIEN, for comparison only.
-4. AIENOS booted natively: not yet measured.
+3. AIENOS booted natively: not yet measured.
 
 ## Upstream relationship
 
@@ -109,7 +112,7 @@ The format follows the upstream Drag Race, PlummersSoftwareLLC/Primes `drag-race
 commit a2899c96752b65ac1b08a0e1418ab7e708040ed0. Our entries are NONCONFORMING for upstream:
 our license is AGPL-3.0-or-later where upstream requires BSD-3-Clause, and the native GPU entry
 uses a language upstream does not accept. They are published as experimental, never as upstream
-leaderboard entries.
+leaderboard entries. We do not compare our scores with upstream entries.
 
 ## Running it
 

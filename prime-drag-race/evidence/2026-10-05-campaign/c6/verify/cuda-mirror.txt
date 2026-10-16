@@ -1,2 +1,0 @@
-verify cuda-mirror: 638 limits, audit passes 3, 0 failures -> PASS
-reference pi(1000000) = 78498

@@ -126,7 +126,10 @@ fn read_uname() -> String {
 
 fn read_gpu_telemetry() -> (f64, u32) {
     let out = std::process::Command::new("nvidia-smi")
-        .args(&["--query-gpu=power.draw,utilization.gpu", "--format=csv,noheader,nounits"])
+        .args(&[
+            "--query-gpu=power.draw,utilization.gpu",
+            "--format=csv,noheader,nounits",
+        ])
         .output();
     if let Ok(output) = out {
         if output.status.success() {
@@ -152,9 +155,17 @@ fn read_process_smaps() -> (f64, f64) {
         let mut pss_kb = 0u64;
         for line in content.lines() {
             if let Some(rest) = line.strip_prefix("Rss:") {
-                rss_kb = rest.split_whitespace().next().and_then(|v| v.parse().ok()).unwrap_or(0);
+                rss_kb = rest
+                    .split_whitespace()
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(0);
             } else if let Some(rest) = line.strip_prefix("Pss:") {
-                pss_kb = rest.split_whitespace().next().and_then(|v| v.parse().ok()).unwrap_or(0);
+                pss_kb = rest
+                    .split_whitespace()
+                    .next()
+                    .and_then(|v| v.parse().ok())
+                    .unwrap_or(0);
             }
         }
         return (rss_kb as f64 / 1024.0, pss_kb as f64 / 1024.0);
@@ -196,7 +207,10 @@ fn load_32k_prefix() -> Vec<u32> {
     if let Ok(content) = fs::read_to_string(manifest_path) {
         if let Ok(val) = serde_json::from_str::<serde_json::Value>(&content) {
             if let Some(arr) = val.get("prefix_token_ids").and_then(|v| v.as_array()) {
-                let tokens: Vec<u32> = arr.iter().filter_map(|t| t.as_u64().map(|v| v as u32)).collect();
+                let tokens: Vec<u32> = arr
+                    .iter()
+                    .filter_map(|t| t.as_u64().map(|v| v as u32))
+                    .collect();
                 if tokens.len() == 32768 {
                     return tokens;
                 }
@@ -221,7 +235,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!(" Run ID:            {}", run_id);
     println!(" Runtime SHA:       {}", runtime_sha);
     println!(" Benchmarks SHA:    {}", benchmarks_sha);
-    println!(" Target Hardware:   NVIDIA DGX Spark (Grace Blackwell GB10, sm_121, NVLink-C2C 900 GB/s)");
+    println!(
+        " Target Hardware:   NVIDIA DGX Spark (Grace Blackwell GB10, sm_121, NVLink-C2C 900 GB/s)"
+    );
     println!(" Measurement Standard: Evidence-Only Raw Receipts with Zero Fallback");
     println!("==========================================================================================\n");
 
@@ -255,7 +271,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- 1. Initializing Blackwell Batch Executor & Weights ---");
     let model_path = PathBuf::from("/home/drakestapleton/.cache/huggingface/hub/models--TinyLlama--TinyLlama-1.1B-Chat-v1.0/snapshots/fe8a4ea1ffedaf415f4da2f062534de366a451e6/model.safetensors");
     let weights = if model_path.exists() {
-        println!("  Loading weights from safetensors checkpoint at {}", model_path.display());
+        println!(
+            "  Loading weights from safetensors checkpoint at {}",
+            model_path.display()
+        );
         TransformerWeights::load_from_safetensors(&model_path, &config)
             .unwrap_or_else(|_| TransformerWeights::reference_test_weights(&config))
     } else {
@@ -263,7 +282,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         TransformerWeights::reference_test_weights(&config)
     };
 
-    println!("  BlackwellBatchExecutor initialized on GB10 silicon. Workspace capacity: 4096 tokens.\n");
+    println!(
+        "  BlackwellBatchExecutor initialized on GB10 silicon. Workspace capacity: 4096 tokens.\n"
+    );
 
     // PART 1: LINEAR Continuous Batching Sweep
     println!("--- 2. LINEAR Continuous Batching Sweep (Concurrencies 1, 2, 4, 8, 16, 32, 64) ---");
@@ -296,8 +317,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             watermark_blocks: 16,
         };
         let mut scheduler = AienScheduler::new(sched_config, shared_kv.clone());
-        let mut local_executor = BlackwellBatchExecutor::new(&weights, 4096)
-            .expect("Executor init");
+        let mut local_executor =
+            BlackwellBatchExecutor::new(&weights, 4096).expect("Executor init");
         local_executor = local_executor.with_kv_manager(shared_kv.clone());
 
         for req_idx in 0..concurrency {
@@ -378,7 +399,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // PART 2: BRANCH-Steady (32K prefix, 500 branches)
     println!("--- 3. BRANCH-Steady Benchmark: 32K Prefix with 500 Branches ---");
     let prefix_tokens = load_32k_prefix();
-    println!("  Shared Prefix Length:         {} tokens (2,048 KV blocks)", prefix_tokens.len());
+    println!(
+        "  Shared Prefix Length:         {} tokens (2,048 KV blocks)",
+        prefix_tokens.len()
+    );
 
     let mut branch_kv_mgr = AienKvManager::<DefaultUnifiedBuffer>::new(pool_blocks, block_size);
     branch_kv_mgr
@@ -399,7 +423,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     assert_eq!(parent_blocks.len(), 2048);
 
     let num_branches = 500;
-    println!("  Spawning {} concurrent branches from 32K shared prefix...", num_branches);
+    println!(
+        "  Spawning {} concurrent branches from 32K shared prefix...",
+        num_branches
+    );
 
     let mut fork_latencies_us = Vec::with_capacity(num_branches);
     let t_fork_start = Instant::now();
@@ -418,7 +445,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let allocated_blocks = branch_kv_mgr.allocated_block_count();
     let bytes_per_block = 22 * 2 * 4 * 64 * 16 * 2;
     let physical_memory_mb = (allocated_blocks as f64 * bytes_per_block as f64) / (1024.0 * 1024.0);
-    let naive_copy_memory_mb = (num_branches as f64 * 2048.0 * bytes_per_block as f64) / (1024.0 * 1024.0);
+    let naive_copy_memory_mb =
+        (num_branches as f64 * 2048.0 * bytes_per_block as f64) / (1024.0 * 1024.0);
     let memory_savings_ratio = naive_copy_memory_mb / physical_memory_mb.max(1.0);
 
     let t_cow = Instant::now();
@@ -428,16 +456,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (rss_mb, pss_mb) = read_process_smaps();
     let decode_throughput_tok_per_sec = 500.0 / (total_fork_time_ms / 1000.0).max(0.001);
 
-    println!("  Total Fork Time (500 branches): {:.2} ms", total_fork_time_ms);
+    println!(
+        "  Total Fork Time (500 branches): {:.2} ms",
+        total_fork_time_ms
+    );
     println!("  Per-Branch Fork Latency p50:    {:.2} us", fork_p50);
     println!("  Per-Branch Fork Latency p90:    {:.2} us", fork_p90);
     println!("  Per-Branch Fork Latency p99:    {:.2} us", fork_p99);
-    println!("  Physical Allocated KV Blocks:   {} (refcount 501)", allocated_blocks);
-    println!("  AIEN Physical KV Memory:        {:.2} MB", physical_memory_mb);
-    println!("  Naive Duplicate Memory Est.:    {:.2} MB ({:.2} GB)", naive_copy_memory_mb, naive_copy_memory_mb / 1024.0);
-    println!("  Memory Savings Ratio:           {:.1} x", memory_savings_ratio);
+    println!(
+        "  Physical Allocated KV Blocks:   {} (refcount 501)",
+        allocated_blocks
+    );
+    println!(
+        "  AIEN Physical KV Memory:        {:.2} MB",
+        physical_memory_mb
+    );
+    println!(
+        "  Naive Duplicate Memory Est.:    {:.2} MB ({:.2} GB)",
+        naive_copy_memory_mb,
+        naive_copy_memory_mb / 1024.0
+    );
+    println!(
+        "  Memory Savings Ratio:           {:.1} x",
+        memory_savings_ratio
+    );
     println!("  Copy-on-Write Append Latency:   {:.2} ns", cow_latency_ns);
-    println!("  Current Process RSS:            {:.2} MB (PSS: {:.2} MB)\n", rss_mb, pss_mb);
+    println!(
+        "  Current Process RSS:            {:.2} MB (PSS: {:.2} MB)\n",
+        rss_mb, pss_mb
+    );
 
     let branch_steady_metrics = BranchSteadyMetrics {
         prefix_tokens: prefix_tokens.len(),
@@ -470,10 +517,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let speedup_recompute = naive_recompute_ms / cold_fork_to_first_token_ms.max(0.001);
     let speedup_copy = naive_copy_ms / cold_fork_to_first_token_ms.max(0.001);
 
-    println!("  Cold Fork to First Token:       {:.3} ms", cold_fork_to_first_token_ms);
-    println!("  Naive 32K Recomputation Est.:   {:.2} ms ({:.1}x speedup)", naive_recompute_ms, speedup_recompute);
-    println!("  Naive 32K Buffer Copy Est.:      {:.2} ms ({:.1}x speedup)", naive_copy_ms, speedup_copy);
-    println!("  Physical Pages Allocated:       1 block (block id {}, slot {})\n", b_id, slot);
+    println!(
+        "  Cold Fork to First Token:       {:.3} ms",
+        cold_fork_to_first_token_ms
+    );
+    println!(
+        "  Naive 32K Recomputation Est.:   {:.2} ms ({:.1}x speedup)",
+        naive_recompute_ms, speedup_recompute
+    );
+    println!(
+        "  Naive 32K Buffer Copy Est.:      {:.2} ms ({:.1}x speedup)",
+        naive_copy_ms, speedup_copy
+    );
+    println!(
+        "  Physical Pages Allocated:       1 block (block id {}, slot {})\n",
+        b_id, slot
+    );
 
     let branch_cold_metrics = BranchColdMetrics {
         prefix_tokens: prefix_tokens.len(),
@@ -487,7 +546,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // PART 4: Provenance Artifacts Generation & Checksums
     println!("--- 5. Generating Provenance Artifacts & SHA256SUMS ---");
-    let peak_throughput = linear_results.iter().map(|p| p.throughput_tok_per_sec).fold(0.0, f64::max);
+    let peak_throughput = linear_results
+        .iter()
+        .map(|p| p.throughput_tok_per_sec)
+        .fold(0.0, f64::max);
 
     let summary = CanonicalBenchmarkSummary {
         run_id: run_id.clone(),
@@ -509,10 +571,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     fs::write(&linear_path, serde_json::to_string_pretty(&linear_results)?)?;
 
     let branch_steady_path = artifacts_dir.join("branch_steady.json");
-    fs::write(&branch_steady_path, serde_json::to_string_pretty(&summary.branch_steady)?)?;
+    fs::write(
+        &branch_steady_path,
+        serde_json::to_string_pretty(&summary.branch_steady)?,
+    )?;
 
     let branch_cold_path = artifacts_dir.join("branch_cold.json");
-    fs::write(&branch_cold_path, serde_json::to_string_pretty(&summary.branch_cold)?)?;
+    fs::write(
+        &branch_cold_path,
+        serde_json::to_string_pretty(&summary.branch_cold)?,
+    )?;
 
     let summary_path = artifacts_dir.join("summary.json");
     fs::write(&summary_path, serde_json::to_string_pretty(&summary)?)?;

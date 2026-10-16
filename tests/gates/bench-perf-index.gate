@@ -1,0 +1,29 @@
+# tests/gates/bench-perf-index.gate
+# No hosted step: 'cargo run --release --bin bench_index' rewrites docs/PERF_INDEX.md from the
+# files in the repository (aien-architecture#233 lane P2); a drift from the committed copy is a
+# FAIL, the same pattern as bench-generate.gate. Needs sibling ../canonical-branch-native-runtime.
+gate: BENCH-PERF-INDEX
+manifest_version: 2
+owner: benchmarks
+requires:
+  - host
+inputs:
+  - Cargo.toml
+  - Cargo.lock
+  - src/
+  - records/
+  - artifacts/
+  - data/
+  - docs/
+  - prime-drag-race/
+  - tests/gates/
+run:
+  exec: tests/gates/run.sh
+  args: ["perf-index"]
+expects:
+  exit: 0
+  observe: ["perf_index_changed == false"]
+  verdict: PASS
+timeout: 15m
+exactness: EXACT
+cache_scope: machine

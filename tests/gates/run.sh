@@ -47,6 +47,23 @@ case "$step" in
     cargo run --release -- generate --output assets
     obs assets_changed "$( [ -z "$(git status --porcelain -- assets)" ] && echo false || echo true)"
     ;;
+  verify-records)
+    need_sibling
+    # Not a hosted step. Offline evidence-integrity check (aien-architecture#233 lane P2): one
+    # stdout line per defect, exit 1 on any. An absent records/ is a note on stderr, not a defect.
+    out="$(cargo run --release --bin bench_verify_records -- records artifacts tests/fixtures/records/good)"
+    rc=$?
+    [ -n "$out" ] && printf '%s\n' "$out"
+    obs record_defects "$( [ -z "$out" ] && echo 0 || printf '%s\n' "$out" | wc -l | tr -d ' ')"
+    exit "$rc"
+    ;;
+  perf-index)
+    need_sibling
+    # Not a hosted step. Rewrites docs/PERF_INDEX.md; like generate, a drift from the committed
+    # copy shows as a dirty tree and perf_index_changed == true.
+    cargo run --release --bin bench_index
+    obs perf_index_changed "$( [ -z "$(git status --porcelain -- docs/PERF_INDEX.md)" ] && echo false || echo true)"
+    ;;
   zero-disk-secrets)
     # Not a hosted step in this repository; the same invariant the sibling repos enforce.
     echo "Auditing repository for prohibited plaintext secret files..."

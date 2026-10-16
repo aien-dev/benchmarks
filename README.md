@@ -76,6 +76,8 @@ TTFT rows come from single-sample runs, so their p50 and p95 are the same value 
 
 Historical record: the two model seat rows were served by Modular MAX, which AIEN removed on 2026-10-15. The harness now measures whatever OpenAI-compatible local model seat answers on ports 18006 and 18082.
 
+**Measurement semantics (current, issue aien-spark/aien-architecture#233).** The rows below are HISTORICAL and were produced by the old parser, which counted every `data:` line as a token, stamped all events from one socket read with one time, treated read errors as end of stream, and reported one TTFT sample as both p50 and p95. The harness no longer works that way. It now decodes the HTTP response (chunked, Content-Length or read-until-close) and the SSE stream incrementally (`src/harness/sse.rs`, `src/harness/llm_stream.rs`) and uses one clock, `std::time::Instant`. A request starts just before its bytes are written; an event arrives when the socket read holding its final byte returns. TTFT is the time to the first event that carries content, so role-only, empty and usage-only events do not count. Read errors, timeouts, non-2xx responses, error events, truncated bodies and streams without `data: [DONE]` count as failed requests and are never measured. Tokens are counted only from the backend's own `usage.completion_tokens`, and the record says `token_accounting: "backend_usage"`. Without it the record says `"events_not_tokens"` and reports SSE events per second and inter-event latency, never tokens per second or inter-token latency. Percentiles use the nearest-rank method over N successful observations, with N recorded: p50 needs one sample, and p95 needs at least 20. The SIMD row's p95 is no longer computed. Endpoint, model, engine, precision, context length, prompt, max_tokens, requests and concurrency are set with `--llm-*` flags, and the record labels come from those flags, not from constants. `llm-stream` writes one `aien-bench-record/1` JSON record and its raw samples file into `--out-dir` (default `records/`, which git ignores); evidence paths are relative to the record's directory. This change adds no new numbers.
+
 | Workload | Model / Target | Execution Engine | p50 Latency | p95 Latency | Observed Speed |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **First Token Latency (TTFT) - GPU Seat** | `Nemotron 3.5 Lightning 30B` (BF16) | Modular MAX on Grace Blackwell GB10 GPU | **426.91 ms** | 426.91 ms | Active Model Seat |
@@ -168,7 +170,7 @@ cd benchmarks
 cargo run --release -- measure
 ```
 
-By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, overwriting the committed copies. Use `--output-json` and `--output-assets` to write elsewhere. `--skip-standalone` skips steps 2 and 3 below, and `--skip-live` skips the live-service part of step 4. Step 5 always runs and reports a notice for any local model seat port that does not answer.
+By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, overwriting the committed copies. Use `--output-json` and `--output-assets` to write elsewhere. `--skip-standalone` skips steps 2 and 3 below, and `--skip-live` skips the live-service part of step 4. Step 5 measures the one streaming endpoint set by the `--llm-*` flags (see `llm-stream` below; `--skip-llm` skips it) and the embedding service on port 18081.
 
 ### What the Measurement Harness Does Automatically
 
@@ -176,7 +178,7 @@ By default `measure` writes `data/benchmarks_latest.json` and `assets/*.svg`, ov
 2. **Ephemeral Microservice Orchestration**: Starts the native compiled Rust standalone server on a dynamic ephemeral port.
 3. **Concurrency Stress Testing**: Executes multi-threaded HTTP load sweeps across the standalone server's endpoints (`/api/status`, `/api/query`, `/api/vector`) measuring exact microsecond latency distributions (p50, p95, p99, min, max) and request throughput.
 4. **OS Memory Telemetry**: Inspects process Resident Set Size (RSS) directly from `/proc/[pid]/status` (`VmRSS`) across live sovereign background services.
-5. **Live Neural Inference Benchmarking**: Streams generation requests to the OpenAI-compatible local model seats on ports 18006 and 18082, measuring real TTFT, ITL, and tokens per second.
+5. **Live Neural Inference Benchmarking**: Streams chat completion requests to one OpenAI-compatible endpoint (default `127.0.0.1:18006`, model `atlas-lightning-omni`, set with the `--llm-*` flags) and reports TTFT, inter-event latency and, only when the backend reports `usage.completion_tokens`, token rates (see "Measurement semantics (current)" above).
 6. **SIMD Vector Benchmark**: Runs 100,000 iterations of 768-dimensional vector dot products to measure raw vector throughput and per-operation latency.
 7. **Dataset & Asset Regeneration**: Automatically updates the structured JSON dataset (`data/benchmarks_latest.json`) and re-renders SVG charts (`assets/*.svg`).
 
@@ -191,6 +193,12 @@ cargo run --release -- verify
 
 # Re-render SVG charts with custom output directory
 cargo run --release -- generate --output assets
+
+# Measure one streaming endpoint and write records/llm_streaming-<time>.json plus its
+# .samples.json (exit 2 if no request succeeded). All --llm-* flags: --help.
+cargo run --release --bin aien-benchmarks -- llm-stream --llm-host 127.0.0.1 --llm-port 18006 \
+  --llm-model <model id> --llm-engine <engine label> --llm-precision <e.g. BF16> \
+  --llm-context-length <tokens> --llm-requests 20 --llm-concurrency 1 --out-dir records
 
 # Rewrite the marked benchmark table (between AIEN:BENCHMARKS:START and END markers) in
 # documentation files from the dataset; with no --target it uses ../README.md and

@@ -1,7 +1,9 @@
 pub mod http_bench;
 pub mod inference_bench;
+pub mod llm_stream;
 pub mod memory;
 pub mod smaps;
+pub mod sse;
 pub mod standalone;
 pub mod system;
 pub mod workloads;
@@ -15,6 +17,8 @@ pub struct MeasurementConfig {
     pub warmup: u32,
     pub skip_standalone: bool,
     pub skip_live: bool,
+    /// Streaming LLM endpoint to measure; None skips it.
+    pub llm: Option<llm_stream::StreamConfig>,
 }
 
 impl Default for MeasurementConfig {
@@ -25,6 +29,7 @@ impl Default for MeasurementConfig {
             warmup: 20,
             skip_standalone: false,
             skip_live: false,
+            llm: Some(llm_stream::StreamConfig::default()),
         }
     }
 }
@@ -240,7 +245,8 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
 
     // 4. In-Memory Neural and SIMD Vector Benchmarks
     println!("  [4/4] Recording neural inference and SIMD compute metrics...");
-    let mut neural_inference = inference_bench::run_neural_inference_benchmarks();
+    let mut neural_inference =
+        inference_bench::run_neural_inference_benchmarks(config.llm.as_ref());
 
     let simd_bench = workloads::run_vector_dot_product_benchmark(100_000, 768);
     println!(
@@ -253,7 +259,8 @@ pub fn run_measurement_suite(config: MeasurementConfig) -> Result<BenchmarkData,
         model: "In-Memory Cortex Embedding".to_string(),
         engine: "Rust SIMD Vector Loop".to_string(),
         p50_ms: simd_bench.p50_latency_us / 1000.0,
-        p95_ms: (simd_bench.p50_latency_us * 1.3) / 1000.0,
+        // The loop yields one mean per iteration, not a distribution: no p95 exists.
+        p95_ms: None,
     });
 
     let total_elapsed = sweep_start.elapsed();

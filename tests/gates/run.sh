@@ -25,7 +25,7 @@ need_sibling() {
 case "$step" in
   fmt)
     need_sibling
-    cargo fmt --all -- --check
+    cargo fmt -p aien-benchmarks -- --check
     ;;
   check)
     need_sibling

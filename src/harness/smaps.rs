@@ -45,7 +45,6 @@ fn parse_kb(s: &str) -> u64 {
         .unwrap_or(0)
 }
 
-
 pub fn get_process_tree_pids(root_pid: u32) -> Vec<u32> {
     let mut pids = vec![root_pid];
     let mut queue = vec![root_pid];

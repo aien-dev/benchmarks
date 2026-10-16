@@ -37,9 +37,6 @@ enum Commands {
         #[arg(long, default_value = "assets")]
         output_assets: String,
 
-        #[arg(long, default_value = "harness/python_baseline.py")]
-        python_script: String,
-
         #[arg(long)]
         skip_standalone: bool,
 
@@ -53,7 +50,7 @@ enum Commands {
     },
     /// Print terminal ASCII summary table
     Report,
-    /// Verify all metrics against baseline invariants
+    /// Verify all metrics against their budget invariants
     Verify,
     /// Synchronize benchmark claims in documentation files from benchmarks_latest.json
     SyncDocs {
@@ -96,13 +93,6 @@ fn render_all_svgs(data: &BenchmarkData, output_dir: &str) {
     fs::write(&lat_path, lat_svg).expect("Failed to write latency SVG");
     println!("  [OK] Rendered {}", lat_path.display());
 
-    if !data.like_for_like.is_empty() {
-        let lfl_svg = svg_chart::generate_like_for_like_chart(data);
-        let lfl_path = out_dir.join("like_for_like_comparison.svg");
-        fs::write(&lfl_path, lfl_svg).expect("Failed to write like-for-like SVG");
-        println!("  [OK] Rendered {}", lfl_path.display());
-    }
-
     println!(
         "All SVG benchmark charts successfully updated in {}.",
         output_dir
@@ -121,10 +111,7 @@ fn print_report(data: &BenchmarkData) {
         data.hardware.memory_unified_gb, data.hardware.os
     );
     if !data.environment.rustc_version.is_empty() {
-        println!(
-            "  Compilers: {} | {}",
-            data.environment.rustc_version, data.environment.python_version
-        );
+        println!("  Compiler: {}", data.environment.rustc_version);
         println!(
             "  Kernel: {} | Page Size: {} KB",
             data.environment.kernel_version, data.environment.page_size_kb
@@ -133,23 +120,16 @@ fn print_report(data: &BenchmarkData) {
     println!("  Timestamp: {}", data.timestamp);
     println!("================================================================================\n");
 
-    println!("--- 1. Memory Resident Set Size (RSS) vs Python Agent Baseline ---");
+    println!("--- 1. Memory Resident Set Size (RSS) ---");
     println!(
-        "{:<28} | {:<32} | {:>10} | {:>12}",
-        "Service", "Architecture", "RSS (MB)", "Reduction"
+        "{:<28} | {:<32} | {:>10}",
+        "Service", "Architecture", "RSS (MB)"
     );
-    println!("{:-<28}-|-{:-<32}-|-{:-<10}-|-{:-<12}", "", "", "", "");
+    println!("{:-<28}-|-{:-<32}-|-{:-<10}", "", "", "");
     for m in &data.memory_rss {
-        let badge = if m.reduction_pct > 0.0 {
-            format!("-{:.2}%", m.reduction_pct)
-        } else if m.reduction_pct < 0.0 {
-            format!("+{:.2}%", -m.reduction_pct)
-        } else {
-            "Baseline".to_string()
-        };
         println!(
-            "{:<28} | {:<32} | {:>10.2} | {:>12}",
-            m.service, m.architecture, m.rss_mb, badge
+            "{:<28} | {:<32} | {:>10.2}",
+            m.service, m.architecture, m.rss_mb
         );
     }
     println!();
@@ -172,28 +152,7 @@ fn print_report(data: &BenchmarkData) {
     }
     println!();
 
-    if !data.like_for_like.is_empty() {
-        println!("--- 3. Like-for-Like Microservice Comparisons (Rust vs Python) ---");
-        println!(
-            "{:<36} | {:>10} | {:>10} | {:>10} | {:>12}",
-            "Workload", "Rust (ms)", "Py (ms)", "Speedup", "RAM Saving"
-        );
-        println!(
-            "{:-<36}-|-{:-<10}-|-{:-<10}-|-{:-<10}-|-{:-<12}",
-            "", "", "", "", ""
-        );
-        for l in &data.like_for_like {
-            let speedup = format!("{:.1}x", l.speedup_factor);
-            let mem = format!("-{:.1}%", l.memory_reduction_pct);
-            println!(
-                "{:<36} | {:>10.2} | {:>10.2} | {:>10} | {:>12}",
-                l.workload, l.rust_p50_ms, l.python_p50_ms, speedup, mem
-            );
-        }
-        println!();
-    }
-
-    println!("--- 4. Local Neural Inference & SIMD Vectors (Grace Blackwell) ---");
+    println!("--- 3. Local Neural Inference & SIMD Vectors (Grace Blackwell) ---");
     println!(
         "{:<42} | {:<32} | {:>10} | {:>10}",
         "Workload", "Model / Kernel", "p50 (ms)", "p95 (ms)"
@@ -228,7 +187,6 @@ fn main() {
             warmup,
             output_json,
             output_assets,
-            python_script,
             skip_standalone,
             skip_live,
         } => {
@@ -238,7 +196,6 @@ fn main() {
                 warmup,
                 skip_standalone,
                 skip_live,
-                python_script_path: python_script,
             };
 
             let data = match harness::run_measurement_suite(config) {
@@ -335,13 +292,12 @@ pub fn generate_markdown_table(data: &BenchmarkData) -> String {
     out.push_str("| :--- | :--- | :--- | :---: | :---: | :---: |\n");
 
     for mem in &data.memory_rss {
-        let lat = data.latency_concurrency.iter().find(|l| l.service == mem.service);
+        let lat = data
+            .latency_concurrency
+            .iter()
+            .find(|l| l.service == mem.service);
         let id = mem.measurement_id.as_deref().unwrap_or("BENCH-UNKNOWN");
-        let rss_str = if mem.reduction_pct > 0.0 {
-            format!("{:.2} MB (-{:.1}%)", mem.rss_mb, mem.reduction_pct)
-        } else {
-            format!("{:.2} MB", mem.rss_mb)
-        };
+        let rss_str = format!("{:.2} MB", mem.rss_mb);
         let (lat_str, tps_str) = match lat {
             Some(l) => (
                 format!("{:.2} ms", l.p50_ms),
@@ -397,14 +353,6 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_memory_reduction_math() {
-        let sample_baseline = 40.0f64;
-        let sample_rust = 4.5f64;
-        let reduction = (1.0 - (sample_rust / sample_baseline)) * 100.0;
-        assert!(reduction > 85.0, "Reduction must exceed 85%");
-    }
-
-    #[test]
     fn test_svg_generation() {
         let raw = include_str!("../data/benchmarks_20260919.json");
         let data: BenchmarkData = serde_json::from_str(raw).expect("Valid JSON");
@@ -413,6 +361,10 @@ mod tests {
         assert!(mem_svg.contains("</svg>"), "Must contain SVG closing tag");
         assert!(!mem_svg.contains('\u{2014}'), "Must not contain em dash");
         assert!(!mem_svg.contains('\u{2013}'), "Must not contain en dash");
+        assert!(
+            !mem_svg.to_lowercase().contains("python"),
+            "No outside comparison in memory chart"
+        );
 
         let lat_svg = svg_chart::generate_latency_chart(&data);
         assert!(lat_svg.contains("<svg"), "Must contain SVG opening tag");
@@ -429,7 +381,11 @@ mod tests {
 
         assert!(table.contains("<!-- AIEN:BENCHMARKS:START -->"));
         assert!(table.contains("<!-- AIEN:BENCHMARKS:END -->"));
-        assert!(table.contains("BENCH-FASTAPI-RSS-001"));
+        assert!(table.contains("BENCH-OPENCLAW-RSS-001"));
+        assert!(
+            !table.to_lowercase().contains("python"),
+            "No outside comparison rows"
+        );
         assert!(table.contains("BENCH-CORTEX-RSS-001"));
         assert!(!table.contains('\u{2014}'), "Must not contain em dash");
         assert!(!table.contains('\u{2013}'), "Must not contain en dash");
@@ -438,7 +394,7 @@ mod tests {
         let synced = sync_markdown_content(doc, &table);
         assert!(synced.contains("# Header"));
         assert!(synced.contains("# Footer"));
-        assert!(synced.contains("BENCH-FASTAPI-RSS-001"));
+        assert!(synced.contains("BENCH-OPENCLAW-RSS-001"));
         assert!(!synced.contains("old table"));
     }
 }

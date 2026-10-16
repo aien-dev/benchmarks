@@ -1,6 +1,5 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::process::{Child, Command};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -104,57 +103,4 @@ fn handle_client(mut stream: TcpStream) {
     );
 
     let _ = stream.write_all(resp.as_bytes());
-}
-
-pub struct PythonBaselineServer {
-    pub port: u16,
-    pub pid: u32,
-    child: Child,
-}
-
-impl PythonBaselineServer {
-    pub fn start(script_path: &str) -> Result<Self, String> {
-        let listener = TcpListener::bind("127.0.0.1:0").map_err(|e| e.to_string())?;
-        let port = listener.local_addr().map_err(|e| e.to_string())?.port();
-        drop(listener);
-
-        let py_bin = "python3";
-
-        let mut child = Command::new(py_bin)
-            .arg(script_path)
-            .arg(port.to_string())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null())
-            .spawn()
-            .map_err(|e| format!("Failed to spawn {} {}: {}", py_bin, script_path, e))?;
-
-        let pid = child.id();
-
-        // Poll until port opens
-        let start = Instant::now();
-        let mut ready = false;
-        while start.elapsed() < Duration::from_secs(5) {
-            if TcpStream::connect(format!("127.0.0.1:{}", port)).is_ok() {
-                ready = true;
-                break;
-            }
-            thread::sleep(Duration::from_millis(50));
-        }
-
-        if !ready {
-            let _ = child.kill();
-            return Err(
-                "Python baseline microservice failed to bind port within 5 seconds".to_string(),
-            );
-        }
-
-        Ok(Self { port, pid, child })
-    }
-}
-
-impl Drop for PythonBaselineServer {
-    fn drop(&mut self) {
-        let _ = self.child.kill();
-        let _ = self.child.wait();
-    }
 }

@@ -80,12 +80,6 @@ pub fn detect_environment(concurrency: u32, requests: u32, warmup: u32) -> Envir
         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
         .unwrap_or_else(|_| "rustc unknown".to_string());
 
-    let python_version = Command::new("python3")
-        .arg("--version")
-        .output()
-        .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-        .unwrap_or_else(|_| "python3 unknown".to_string());
-
     let kernel_version = Command::new("uname")
         .arg("-r")
         .output()
@@ -96,7 +90,6 @@ pub fn detect_environment(concurrency: u32, requests: u32, warmup: u32) -> Envir
 
     EnvironmentInfo {
         rustc_version,
-        python_version,
         kernel_version,
         page_size_kb,
         concurrency_tested: concurrency,

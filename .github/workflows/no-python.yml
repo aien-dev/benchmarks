@@ -1,0 +1,13 @@
+name: No Python
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  no-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sh scripts/check-no-python.sh

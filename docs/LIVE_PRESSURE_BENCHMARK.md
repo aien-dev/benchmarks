@@ -6,7 +6,7 @@
 - **Processor**: NVIDIA Grace Blackwell (GB10, aarch64, 128-bit NEON / SVE)
 - **Memory**: 121 GB Unified LPDDR5X (Unified CPU/GPU Physical Memory)
 - **Host Kernel**: Linux 7.0.0-1019-nvidia (4 KB page size)
-- **Compilers**: rustc 1.98.1 (48a229cea 2026-09-01), CPython 3.12.3
+- **Compiler**: rustc 1.98.1 (48a229cea 2026-09-01)
 
 ---
 
